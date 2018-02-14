@@ -3,8 +3,10 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QMap>
 
 #include "Arena.h"
+#include "SerialPort.h"
 
 class SerialPortList : public QObject
 {
