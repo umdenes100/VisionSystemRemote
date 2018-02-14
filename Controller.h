@@ -23,8 +23,9 @@ public slots:
 private:
     Arena mArena;
     Camera mCamera;
-    SerialPortList mSerialPortList;
     Server mServer;
+    SerialPortList mSerialPortList;
+
 };
 
 #endif // CONTROLLER_H

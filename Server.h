@@ -10,6 +10,9 @@ class Server : public QObject
 public:
     explicit Server(QObject *parent = 0);
 
+public slots:
+    void onNewMessage(QString buffer);
+
 signals:
 
 private slots:
