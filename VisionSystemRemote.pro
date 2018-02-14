@@ -13,6 +13,7 @@ SOURCES += main.cpp \
     Arena.cpp \
     Camera.cpp \
     Controller.cpp \
+    SerialPortList.cpp \
     Server.cpp
 
 # The following define makes your compiler emit warnings if you use
@@ -33,6 +34,7 @@ HEADERS += \
     Marker.h \
     Obstacle.h \
     Position.h \
+    SerialPortList.h \
     Server.h
 
 unix|win32: LIBS += -L/usr/local/lib -laruco -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc
