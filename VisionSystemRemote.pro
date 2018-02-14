@@ -13,6 +13,7 @@ SOURCES += main.cpp \
     Arena.cpp \
     Camera.cpp \
     Controller.cpp \
+    SerialPort.cpp \
     SerialPortList.cpp \
     Server.cpp
 
@@ -34,6 +35,7 @@ HEADERS += \
     Marker.h \
     Obstacle.h \
     Position.h \
+    SerialPort.h \
     SerialPortList.h \
     Server.h
 

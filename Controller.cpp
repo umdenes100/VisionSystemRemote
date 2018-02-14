@@ -3,7 +3,7 @@
 Controller::Controller(QObject *parent) : QObject(parent),
     mArena(),
     mCamera(mArena),
-//    mSerialPortList(),
+    mSerialPortList(),
     mServer()
 {
 

@@ -6,6 +6,7 @@
 #include "Arena.h"
 #include "Camera.h"
 #include "Server.h"
+#include "SerialPortList.h"
 
 class Controller : public QObject
 {
@@ -22,7 +23,7 @@ public slots:
 private:
     Arena mArena;
     Camera mCamera;
-//    SerialPortList mSerialPortList;
+    SerialPortList mSerialPortList;
     Server mServer;
 };
 
