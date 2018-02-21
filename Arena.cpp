@@ -76,7 +76,7 @@ void Arena::drawCircle(cv::Mat& image, float x, float y, float radius) {
 // @params x, y are arena coordinate of upper left corner of rectangle
 // @params width, height are in meters
 void Arena::drawRectangle(cv::Mat& image, float x, float y, float width, float height) {
-    vector<cv::Point> points(4);
+    std::vector<cv::Point> points(4);
 
     points[0] = cameraCoordinate(x, y);
     points[1] = cameraCoordinate(x + width, y);
@@ -101,7 +101,7 @@ bool Arena::getPosition(int markerId, Marker& marker) {
 }
 
 // Translates and stores a set of detected markers
-void Arena::processMarkers(cv::Mat& image, vector<aruco::Marker>& markers) {
+void Arena::processMarkers(cv::Mat& image, std::vector<aruco::Marker>& markers) {
     mMarkers.clear();
 
     foreach (aruco::Marker marker, markers) {

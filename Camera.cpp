@@ -2,12 +2,12 @@
 
 Camera::Camera(Arena& arena) : QObject(), mArena(arena) {
     connect(&mCaptureTimer, SIGNAL(timeout()), SLOT(capture()));
-    mMarkerDetector.setMinMaxSize(0.0001,0.5);
+    mMarkerDetector.setDetectionMode(aruco::DM_VIDEO_FAST, 0.001);
 }
 
 void Camera::capture() {
     static cv::Mat image;
-    static vector<aruco::Marker> markers;
+    static std::vector<aruco::Marker> markers;
 
     if (mVideoCapture.isOpened() && mVideoCapture.grab()) {
         mVideoCapture.retrieve(image);
