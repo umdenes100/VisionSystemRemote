@@ -6,9 +6,9 @@ Controller::Controller(QObject *parent) : QObject(parent),
     mServer(),
     mSerialPortList(mArena, mServer)
 {
-
+    connect(&mCamera, SIGNAL(newFrame(QImage)), &mServer, SLOT(onNewFrame(QImage)));
 }
 
 void Controller::start() {
-
+    mCamera.applySettings(0, QSize(1920, 1080), 15, 0.1);
 }

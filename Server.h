@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QTcpServer>
+#include <QList>
+#include <QImage>
 
 class Server : public QObject
 {
@@ -11,6 +13,7 @@ public:
     explicit Server(QObject *parent = 0);
 
 public slots:
+    void onNewFrame(QImage frame);
     void onNewMessage(QString buffer);
 
 signals:
@@ -20,6 +23,8 @@ private slots:
 
 private:
     QTcpServer mImageServer;
+
+    QList<QTcpSocket*> mImageClients;
 };
 
 #endif // SERVER_H
