@@ -4,7 +4,8 @@
 
 SerialPort::SerialPort(QSerialPortInfo& info, Arena& arena) :
     QSerialPort(info),
-    mArena(arena)
+    mArena(arena),
+    mTeamName(info.portName())
 {
     connect(this, SIGNAL(readyRead()), SLOT(onReadyRead()));
     setBaudRate(QSerialPort::Baud9600);
@@ -14,6 +15,10 @@ SerialPort::SerialPort(QSerialPortInfo& info, Arena& arena) :
     while(!isOpen())
         open(QIODevice::ReadWrite);
     setRequestToSend(false);
+}
+
+QString& SerialPort::getTeamName(){
+    return mTeamName;
 }
 
 void SerialPort::onReadyRead() {
@@ -27,7 +32,7 @@ void SerialPort::onReadyRead() {
 
         if (c == '#') {
             commandMode = true;
-            emit transmit(buffer);
+            emit transmit(mTeamName, buffer);
             buffer = QString("");
         } else {
            if (commandMode) {
@@ -40,7 +45,7 @@ void SerialPort::onReadyRead() {
            } else {
                 buffer.append(c);
                 if(c == '\n') {
-                    emit transmit(buffer);
+                    emit transmit(mTeamName, buffer);
                 }
                 buffer = QString("");
            }
