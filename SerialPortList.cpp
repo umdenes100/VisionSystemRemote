@@ -1,6 +1,7 @@
 #include "SerialPortList.h"
 
 #include <QSerialPortInfo>
+#include <QWebSocket>
 #include <QDebug>
 
 SerialPortList::SerialPortList(Arena& arena, Server& server, QObject *parent) :
@@ -14,14 +15,15 @@ SerialPortList::SerialPortList(Arena& arena, Server& server, QObject *parent) :
 }
 
 void SerialPortList::refreshPorts() {
-    QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
 
+    QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
     foreach (QSerialPortInfo port, availablePorts) {
         if (!mSerialPorts.contains(port.portName())) {
             SerialPort *serialPort = new SerialPort(port, mArena);
             connect(serialPort, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(onError(QSerialPort::SerialPortError)));
-            connect(serialPort, SIGNAL(transmit(QString)), &mServer, SLOT(onNewMessage(QString)));
+            connect(serialPort, SIGNAL(transmit(QString, QString)), &mServer, SLOT(onNewMessage(QString, QString)));
             mSerialPorts.insert(port.portName(), serialPort);
+            mServer.addNameToMap(serialPort->getTeamName());
         }
     }
 }

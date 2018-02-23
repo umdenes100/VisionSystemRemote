@@ -15,6 +15,7 @@ class SerialPortList : public QObject
 public:
     explicit SerialPortList(Arena& arena, Server& server, QObject *parent = 0);
 
+
 private slots:
     void onError(QSerialPort::SerialPortError error);
     void refreshPorts();
