@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "SerialPort.h"
 
 #include <QTcpSocket>
 #include <QByteArray>
@@ -6,13 +7,24 @@
 
 Server::Server(QObject *parent) :
     QObject(parent),
-    mImageServer()
+    mImageServer(),
+    mMessageServer(QStringLiteral("LTFs"), QWebSocketServer::NonSecureMode, this)
 {
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
+    connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
 
     qDebug() << "Starting image server...";
     mImageServer.listen(QHostAddress::Any, 8080);
     qDebug() << "Server listening on port 8080";
+
+    qDebug() << "Starting message server...";
+    mMessageServer.listen(QHostAddress::Any, 9000);
+    qDebug() << "Server listening on port 9000";
+
+}
+
+void Server::addNameToMap(QString& name){
+    mMessageClients.insert(name, QList<QWebSocket *>());
 }
 
 void Server::onNewImageConnection() {
@@ -37,7 +49,14 @@ void Server::onNewFrame(QImage frame) {
         socket->write(bin);
     }
 }
-
-void Server::onNewMessage(QString buffer) {
+void Server::onNewMessageConnection() {
+    QWebSocket* socket = mMessageServer.nextPendingConnection();
+    socket->sendTextMessage(QStringLiteral("Hello"));
 
 }
+
+void Server::onNewMessage(QString teamName, QString buffer) {
+
+}
+
+
