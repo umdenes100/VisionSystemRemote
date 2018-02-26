@@ -23,8 +23,9 @@ public slots:
 private:
     Arena mArena;
     Camera mCamera;
+
     Server mServer;
-    SerialPortList mSerialPortList;
+
 
 };
 

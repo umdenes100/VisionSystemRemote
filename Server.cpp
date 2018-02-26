@@ -5,11 +5,14 @@
 #include <QByteArray>
 #include <QBuffer>
 
-Server::Server(QObject *parent) :
+Server::Server(Arena& arena, QObject *parent) :
     QObject(parent),
     mImageServer(),
-    mMessageServer(QStringLiteral("LTFs"), QWebSocketServer::NonSecureMode, this)
+    mMessageServer(QStringLiteral("LTFs"), QWebSocketServer::NonSecureMode, this),
+    mSerialPortList(arena)
 {
+    connect(&mSerialPortList, SIGNAL(newMessage(QString,QString)), SLOT(onNewMessage(QString,QString)));
+    connect(&mSerialPortList, SIGNAL(newSerialPort(QString)), SLOT(addNameToMap(QString)));
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
     connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
 
@@ -23,7 +26,7 @@ Server::Server(QObject *parent) :
 
 }
 
-void Server::addNameToMap(QString& name){
+void Server::addNameToMap(QString name){
     mMessageClients.insert(name, QList<QWebSocket *>());
 }
 
@@ -51,12 +54,18 @@ void Server::onNewFrame(QImage frame) {
 }
 void Server::onNewMessageConnection() {
     QWebSocket* socket = mMessageServer.nextPendingConnection();
-    socket->sendTextMessage(QStringLiteral("Hello"));
 
+    QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
+    foreach(QString portName, serialPorts.keys()){
+        //transmit portname, teamname
+//        socket->sendTextMessage(portName);
+    }
 }
 
-void Server::onNewMessage(QString teamName, QString buffer) {
-
+void Server::onNewMessage(QString portName, QString message) {
+    foreach(QWebSocket* socket, mMessageClients[portName]){
+        socket->sendTextMessage(message);
+    }
 }
 
 

@@ -5,7 +5,6 @@
 #include <QSerialPortInfo>
 
 #include "Arena.h"
-#include "Server.h"
 
 class SerialPort : public QSerialPort
 {
@@ -15,7 +14,7 @@ public:
     QString& getTeamName();
 
 signals:
-    void transmit(QString teamName, QString buffer);
+    void newMessage(QString portName, QString message);
 
 private slots:
     void onReadyRead();

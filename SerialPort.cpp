@@ -32,7 +32,7 @@ void SerialPort::onReadyRead() {
 
         if (c == '#') {
             commandMode = true;
-            emit transmit(mTeamName, buffer);
+            emit newMessage(portName(), buffer);
             buffer = QString("");
         } else {
            if (commandMode) {
@@ -45,7 +45,7 @@ void SerialPort::onReadyRead() {
            } else {
                 buffer.append(c);
                 if(c == '\n') {
-                    emit transmit(mTeamName, buffer);
+                    emit newMessage(portName(), buffer);
                 }
                 buffer = QString("");
            }

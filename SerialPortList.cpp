@@ -4,14 +4,17 @@
 #include <QWebSocket>
 #include <QDebug>
 
-SerialPortList::SerialPortList(Arena& arena, Server& server, QObject *parent) :
+SerialPortList::SerialPortList(Arena& arena, QObject *parent) :
     QObject(parent),
     mArena(arena),
-    mServer(server),
     mRefreshPortsTimer()
 {
     connect(&mRefreshPortsTimer, SIGNAL(timeout()), SLOT(refreshPorts()));
     mRefreshPortsTimer.start(500);
+}
+
+QMap<QString, SerialPort *>& SerialPortList::getMap(){
+    return mSerialPorts;
 }
 
 void SerialPortList::refreshPorts() {
@@ -21,9 +24,8 @@ void SerialPortList::refreshPorts() {
         if (!mSerialPorts.contains(port.portName())) {
             SerialPort *serialPort = new SerialPort(port, mArena);
             connect(serialPort, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(onError(QSerialPort::SerialPortError)));
-            connect(serialPort, SIGNAL(transmit(QString, QString)), &mServer, SLOT(onNewMessage(QString, QString)));
+            connect(serialPort, SIGNAL(newMessage(QString, QString)), this, SLOT(onNewMessage(QString, QString)));
             mSerialPorts.insert(port.portName(), serialPort);
-            mServer.addNameToMap(serialPort->getTeamName());
         }
     }
 }
@@ -38,4 +40,8 @@ void SerialPortList::onError(QSerialPort::SerialPortError error) {
         mSerialPorts.remove(serialPort->portName());
         delete serialPort;
     }
+}
+
+void SerialPortList::onNewMessage(QString portName, QString message){
+    emit newMessage(portName, message);
 }

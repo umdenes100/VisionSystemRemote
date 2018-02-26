@@ -3,8 +3,7 @@
 Controller::Controller(QObject *parent) : QObject(parent),
     mArena(),
     mCamera(mArena),
-    mServer(),
-    mSerialPortList(mArena, mServer)
+    mServer(mArena)
 {
     connect(&mCamera, SIGNAL(newFrame(QImage)), &mServer, SLOT(onNewFrame(QImage)));
 }

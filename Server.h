@@ -10,23 +10,24 @@
 #include <QImage>
 #include <QMap>
 
+#include "SerialPortList.h"
+
 class Server : public QObject
 {
     Q_OBJECT
 public:
-    explicit Server(QObject *parent = 0);
-
-    void addNameToMap(QString& name);
+    explicit Server(Arena& arena, QObject *parent = 0);
 
 public slots:
     void onNewFrame(QImage frame);
-    void onNewMessage(QString teamName, QString buffer);
 
 signals:
 
 private slots:
     void onNewImageConnection();
     void onNewMessageConnection();
+    void addNameToMap(QString name);
+    void onNewMessage(QString portName, QString message);
 
 private:
     QTcpServer mImageServer;
@@ -34,6 +35,8 @@ private:
 
     QWebSocketServer mMessageServer;
     QMap<QString, QList<QWebSocket*>> mMessageClients;
+
+    SerialPortList mSerialPortList;
 
 };
 

@@ -7,22 +7,27 @@
 
 #include "Arena.h"
 #include "SerialPort.h"
-#include "Server.h"
 
 class SerialPortList : public QObject
 {
     Q_OBJECT
 public:
-    explicit SerialPortList(Arena& arena, Server& server, QObject *parent = 0);
+    explicit SerialPortList(Arena& arena, QObject *parent = 0);
 
+    QMap<QString, SerialPort*>& getMap();
+
+signals:
+    void newSerialPort();
+    void newMessage(QString portName, QString message);
+    void newSerialPort(QString portName);
 
 private slots:
     void onError(QSerialPort::SerialPortError error);
+    void onNewMessage(QString portName, QString message);
     void refreshPorts();
 
 private:
     Arena& mArena;
-    Server& mServer;
     QTimer mRefreshPortsTimer;
     QMap<QString, SerialPort*> mSerialPorts;
 
