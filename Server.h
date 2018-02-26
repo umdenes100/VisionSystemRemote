@@ -28,8 +28,12 @@ private slots:
     void onNewMessageConnection();
     void addNameToMap(QString name);
     void onNewMessage(QString portName, QString message);
+    void onMessageReceived(QString message);
 
 private:
+    QString jsonify(QMap<QString, SerialPort*>);
+    QString jsonify(QString);
+
     QTcpServer mImageServer;
     QList<QTcpSocket*> mImageClients;
 

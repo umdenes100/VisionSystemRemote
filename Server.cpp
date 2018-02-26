@@ -4,6 +4,9 @@
 #include <QTcpSocket>
 #include <QByteArray>
 #include <QBuffer>
+#include <QPair>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 Server::Server(Arena& arena, QObject *parent) :
     QObject(parent),
@@ -52,20 +55,59 @@ void Server::onNewFrame(QImage frame) {
         socket->write(bin);
     }
 }
+
 void Server::onNewMessageConnection() {
     QWebSocket* socket = mMessageServer.nextPendingConnection();
 
+    connect(socket, SIGNAL(textMessageReceived(QString)), SLOT(onMessageReceived(QString)));
+
     QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
-    foreach(QString portName, serialPorts.keys()){
-        //transmit portname, teamname
-//        socket->sendTextMessage(portName);
-    }
+    QString json = jsonify(serialPorts);
+    socket->sendTextMessage(json);
 }
 
 void Server::onNewMessage(QString portName, QString message) {
     foreach(QWebSocket* socket, mMessageClients[portName]){
-        socket->sendTextMessage(message);
+        socket->sendTextMessage(jsonify(message));
     }
 }
+
+void Server::onMessageReceived(QString message) {
+    qDebug() << message;
+
+    if(mMessageClients.contains(message)){
+        qDebug() << "found";
+        QWebSocket* socket = static_cast<QWebSocket *>(QObject::sender());
+        mMessageClients[message].append(socket);
+    }
+}
+
+QString Server::jsonify(QMap<QString, SerialPort *> serialPorts) {
+   QJsonObject jsonPorts, jsonMessage;
+
+   jsonMessage.insert("TYPE", "PORTLIST");
+
+   foreach(QString portName, serialPorts.keys()){
+       jsonPorts.insert(portName, serialPorts[portName]->getTeamName());
+   }
+
+   jsonMessage.insert("CONTENT", jsonPorts);
+   QJsonDocument doc(jsonMessage);
+   return QString(doc.toJson(QJsonDocument::Compact));
+}
+
+QString Server::jsonify(QString message) {
+    QJsonObject jsonMessage, jsonContents;
+
+    jsonMessage.insert("TYPE", "MESSAGE");
+    jsonContents.insert("M_TYPE", "DEBUG");
+    jsonContents.insert("CONTENT", message);
+    jsonMessage.insert("CONTENT", jsonContents);
+
+    QJsonDocument doc(jsonMessage);
+    return QString(doc.toJson(QJsonDocument::Compact));
+}
+
+
 
 
