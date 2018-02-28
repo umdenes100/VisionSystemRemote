@@ -54,5 +54,11 @@ void SerialPort::onReadyRead() {
 }
 
 void SerialPort::processCommand(QString buffer){
-
+    // if we get startMission then the list of serialPorts has changed:
+    if (buffer.contains("start")) {
+        // #start <teamType> <teamName>*
+        QStringList values = buffer.split(' ');
+        mTeamName = values[2];
+        emit newName();
+    }
 }

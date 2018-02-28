@@ -15,6 +15,7 @@ public:
 
 signals:
     void newMessage(QString portName, QString message);
+    void newName();
 
 private slots:
     void onReadyRead();

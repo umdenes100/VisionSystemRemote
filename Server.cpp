@@ -16,6 +16,7 @@ Server::Server(Arena& arena, QObject *parent) :
 {
     connect(&mSerialPortList, SIGNAL(newMessage(QString,QString)), SLOT(onNewMessage(QString,QString)));
     connect(&mSerialPortList, SIGNAL(newSerialPort(QString)), SLOT(addNameToMap(QString)));
+    connect(&mSerialPortList, SIGNAL(newName()), SLOT(onNewName()));
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
     connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
 
@@ -27,6 +28,7 @@ Server::Server(Arena& arena, QObject *parent) :
     mMessageServer.listen(QHostAddress::Any, 9000);
     qDebug() << "Server listening on port 9000";
 
+    mMessageClients.insert("", QList<QWebSocket *>());
 }
 
 void Server::addNameToMap(QString name){
@@ -64,11 +66,28 @@ void Server::onNewMessageConnection() {
     QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
     QString json = jsonify(serialPorts);
     socket->sendTextMessage(json);
+
+    // this is ugly, if anyone can figure out a better way please replace this
+    QList<QWebSocket *> newList;
+    newList = mMessageClients.value("");
+    newList.append(socket);
+    mMessageClients.insert("", newList);
 }
 
 void Server::onNewMessage(QString portName, QString message) {
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonify(message));
+    }
+}
+
+void Server::onNewName() {
+    QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
+    QString json = jsonify(serialPorts);
+
+    foreach (QList<QWebSocket*> portClients, mMessageClients.values()) {
+        foreach (QWebSocket* socket, portClients) {
+            socket->sendTextMessage(json);
+        }
     }
 }
 

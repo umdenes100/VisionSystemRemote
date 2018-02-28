@@ -14,17 +14,19 @@ SerialPortList::SerialPortList(Arena& arena, QObject *parent) :
 }
 
 QMap<QString, SerialPort *>& SerialPortList::getMap(){
+    refreshPorts();
     return mSerialPorts;
 }
 
 void SerialPortList::refreshPorts() {
-
     QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
+
     foreach (QSerialPortInfo port, availablePorts) {
         if (!mSerialPorts.contains(port.portName())) {
             SerialPort *serialPort = new SerialPort(port, mArena);
             connect(serialPort, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(onError(QSerialPort::SerialPortError)));
             connect(serialPort, SIGNAL(newMessage(QString, QString)), this, SLOT(onNewMessage(QString, QString)));
+            connect(serialPort, SIGNAL(newName()), this, SLOT(onNewName()));
             mSerialPorts.insert(port.portName(), serialPort);
             emit newSerialPort(port.portName());
         }
@@ -45,4 +47,8 @@ void SerialPortList::onError(QSerialPort::SerialPortError error) {
 
 void SerialPortList::onNewMessage(QString portName, QString message){
     emit newMessage(portName, message);
+}
+
+void SerialPortList::onNewName() {
+    emit newName();
 }

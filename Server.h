@@ -28,6 +28,7 @@ private slots:
     void onNewMessageConnection();
     void addNameToMap(QString name);
     void onNewMessage(QString portName, QString message);
+    void onNewName();
     void onMessageReceived(QString message);
 
 private:

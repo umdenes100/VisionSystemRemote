@@ -19,11 +19,13 @@ public:
 signals:
     void newSerialPort();
     void newMessage(QString portName, QString message);
+    void newName();
     void newSerialPort(QString portName);
 
 private slots:
     void onError(QSerialPort::SerialPortError error);
     void onNewMessage(QString portName, QString message);
+    void onNewName();
     void refreshPorts();
 
 private:
