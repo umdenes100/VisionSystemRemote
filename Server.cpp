@@ -96,7 +96,12 @@ void Server::onMessageReceived(QString message) {
 
     if(mMessageClients.contains(message)){
         qDebug() << "found";
+
         QWebSocket* socket = static_cast<QWebSocket *>(QObject::sender());
+        foreach (QList<QWebSocket*> socketList, mMessageClients) {
+            socketList.removeOne(socket);
+        }
+
         mMessageClients[message].append(socket);
     }
 }

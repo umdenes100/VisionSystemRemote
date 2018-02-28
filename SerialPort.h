@@ -23,6 +23,7 @@ private slots:
 private:
     Arena& mArena;
     QString mTeamName;
+    bool commandMode = false;
 
     void processCommand(QString buffer);
 };

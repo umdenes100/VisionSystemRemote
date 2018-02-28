@@ -22,8 +22,6 @@ QString& SerialPort::getTeamName(){
 }
 
 void SerialPort::onReadyRead() {
-    bool commandMode = false;
-
     QString buffer;
 
     while (bytesAvailable()) {
@@ -36,9 +34,9 @@ void SerialPort::onReadyRead() {
             buffer = QString("");
         } else {
            if (commandMode) {
-                if(c == '*'){
-                    commandMode = false;
+                if(c == '*') {
                     processCommand(buffer);
+                    commandMode = false;
                 }else {
                     buffer.append(c);
                 }
@@ -46,11 +44,13 @@ void SerialPort::onReadyRead() {
                 buffer.append(c);
                 if(c == '\n') {
                     emit newMessage(portName(), buffer);
+                    buffer = QString("");
                 }
-                buffer = QString("");
            }
         }
     }
+
+
 }
 
 void SerialPort::processCommand(QString buffer){
@@ -58,7 +58,13 @@ void SerialPort::processCommand(QString buffer){
     if (buffer.contains("start")) {
         // #start <teamType> <teamName>*
         QStringList values = buffer.split(' ');
-        mTeamName = values[2];
+
+        QString teamName = "";
+        for (int i = 2; i < values.size(); i++) {
+            teamName += values[i] + " ";
+        }
+
+        mTeamName = teamName;
         emit newName();
     }
 }
