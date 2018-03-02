@@ -17,6 +17,7 @@ Server::Server(Arena& arena, QObject *parent) :
     connect(&mSerialPortList, SIGNAL(newMessage(QString,QString)), SLOT(onNewMessage(QString,QString)));
     connect(&mSerialPortList, SIGNAL(newSerialPort(QString)), SLOT(addNameToMap(QString)));
     connect(&mSerialPortList, SIGNAL(newName()), SLOT(onNewName()));
+    connect(&mSerialPortList, SIGNAL(newCommand(QString,CommandType,QString)), SLOT(onNewCommand(QString,CommandType,QString)));
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
     connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
 
@@ -51,9 +52,14 @@ void Server::onNewFrame(QImage frame) {
     frame.save(&buffer, "jpeg");
 
     foreach (QTcpSocket* socket, mImageClients) {
-        socket->write("\r\n--newframe\r\n");
-        socket->write("Content-Type: image/jpeg\r\n");
-        socket->write("\r\n");
+        QByteArray frameString = ("--newframe\r\n" \
+                      "Content-Type: image/jpeg\r\n" \
+                      "Content-Length: ");
+
+        frameString.append(QString::number(bin.length()));
+        frameString.append("\r\n\r\n");
+
+        socket->write(frameString);
         socket->write(bin);
     }
 }
@@ -67,16 +73,13 @@ void Server::onNewMessageConnection() {
     QString json = jsonify(serialPorts);
     socket->sendTextMessage(json);
 
-    // this is ugly, if anyone can figure out a better way please replace this
-    QList<QWebSocket *> newList;
-    newList = mMessageClients.value("");
-    newList.append(socket);
-    mMessageClients.insert("", newList);
+    mMessageClients[""].append(socket);
 }
 
 void Server::onNewMessage(QString portName, QString message) {
+    QString jsonMessage = jsonify(message);
     foreach(QWebSocket* socket, mMessageClients[portName]){
-        socket->sendTextMessage(jsonify(message));
+        socket->sendTextMessage(jsonMessage);
     }
 }
 
@@ -93,16 +96,22 @@ void Server::onNewName() {
 
 void Server::onMessageReceived(QString message) {
     qDebug() << message;
-
     if(mMessageClients.contains(message)){
         qDebug() << "found";
 
         QWebSocket* socket = static_cast<QWebSocket *>(QObject::sender());
-        foreach (QList<QWebSocket*> socketList, mMessageClients) {
-            socketList.removeOne(socket);
+        foreach (QString key, mMessageClients.keys()) {
+            mMessageClients[key].removeOne(socket);
         }
 
         mMessageClients[message].append(socket);
+    }
+}
+
+void Server::onNewCommand(QString portName, CommandType type, QString message) {
+    QString jsonMessage = jsonify(type, message);
+    foreach(QWebSocket* socket, mMessageClients[portName]){
+        socket->sendTextMessage(jsonMessage);
     }
 }
 
@@ -112,7 +121,10 @@ QString Server::jsonify(QMap<QString, SerialPort *> serialPorts) {
    jsonMessage.insert("TYPE", "PORTLIST");
 
    foreach(QString portName, serialPorts.keys()){
-       jsonPorts.insert(portName, serialPorts[portName]->getTeamName());
+       QJsonObject json;
+       json.insert("NAME", serialPorts[portName]->getTeamName());
+       json.insert("MISSION", serialPorts[portName]->getTeamType());
+       jsonPorts.insert(portName, json);
    }
 
    jsonMessage.insert("CONTENT", jsonPorts);
@@ -125,6 +137,19 @@ QString Server::jsonify(QString message) {
 
     jsonMessage.insert("TYPE", "MESSAGE");
     jsonContents.insert("M_TYPE", "DEBUG");
+    jsonContents.insert("CONTENT", message);
+    jsonMessage.insert("CONTENT", jsonContents);
+
+    QJsonDocument doc(jsonMessage);
+    return QString(doc.toJson(QJsonDocument::Compact));
+}
+
+QString Server::jsonify(CommandType type, QString message){
+    QJsonObject jsonMessage, jsonContents;
+
+    jsonMessage.insert("TYPE", "MESSAGE");
+    jsonContents.insert("M_TYPE", "MISSION");
+    jsonContents.insert("CONTENT_TYPE", type);
     jsonContents.insert("CONTENT", message);
     jsonMessage.insert("CONTENT", jsonContents);
 

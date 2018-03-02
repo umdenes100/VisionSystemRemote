@@ -30,10 +30,12 @@ private slots:
     void onNewMessage(QString portName, QString message);
     void onNewName();
     void onMessageReceived(QString message);
+    void onNewCommand(QString portName, CommandType type, QString message);
 
 private:
     QString jsonify(QMap<QString, SerialPort*>);
     QString jsonify(QString);
+    QString jsonify(CommandType type, QString message);
 
     QTcpServer mImageServer;
     QList<QTcpSocket*> mImageClients;
