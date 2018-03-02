@@ -1,24 +1,20 @@
-QT += core serialport network websockets
-#QT -= gui
+#-------------------------------------------------
+#
+# Project created by QtCreator 2018-03-02T14:56:57
+#
+#-------------------------------------------------
+
+QT       += core gui serialport network websockets
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = VisionSystemRemote
+TEMPLATE = app
 
 CONFIG += c++11
 
-TARGET = VisionSystemRemote
-CONFIG += console
-CONFIG -= app_bundle
-
-TEMPLATE = app
-
-SOURCES += main.cpp \
-    Arena.cpp \
-    Camera.cpp \
-    Controller.cpp \
-    SerialPort.cpp \
-    SerialPortList.cpp \
-    Server.cpp
-
 # The following define makes your compiler emit warnings if you use
-# any feature of Qt which as been marked deprecated (the exact warnings
+# any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -28,7 +24,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+
+SOURCES += \
+        main.cpp \
+        mainwindow.cpp \
+    Arena.cpp \
+    Camera.cpp \
+    Controller.cpp \
+    SerialPort.cpp \
+    SerialPortList.cpp \
+    Server.cpp \
+    missions/BlackBoxMission.cpp \
+    missions/ChemicalMission.cpp \
+    missions/DebrisMission.cpp \
+    missions/FireMission.cpp \
+    missions/WaterMission.cpp
+
 HEADERS += \
+        mainwindow.h \
     Arena.h \
     Camera.h \
     Controller.h \
@@ -37,7 +50,16 @@ HEADERS += \
     Position.h \
     SerialPort.h \
     SerialPortList.h \
-    Server.h
+    Server.h \
+    missions/BlackBoxMission.h \
+    missions/ChemicalMission.h \
+    missions/DebrisMission.h \
+    missions/FireMission.h \
+    missions/Mission.h \
+    missions/WaterMission.h
+
+FORMS += \
+        mainwindow.ui
 
 unix|win32: LIBS += -L/usr/local/lib -laruco -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc
 
