@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include <QDebug>
+
 Camera::Camera(Arena& arena) : QObject(), mArena(arena) {
     connect(&mCaptureTimer, SIGNAL(timeout()), SLOT(capture()));
     mMarkerDetector.setDetectionMode(aruco::DM_VIDEO_FAST, 0.001);
@@ -11,8 +13,8 @@ void Camera::capture() {
 
     if (mVideoCapture.isOpened() && mVideoCapture.grab()) {
         mVideoCapture.retrieve(image);
-        mMarkerDetector.detect(image, markers, mCameraParameters, mMarkerSize);
 
+        mMarkerDetector.detect(image, markers, mCameraParameters, mMarkerSize);
         mArena.processMarkers(image, markers);
         mArena.draw(image, mDrawObstacles, mDrawDestination);
 
@@ -28,9 +30,9 @@ void Camera::applySettings(uint cameraDevice, QSize resolution, uint frameRate, 
     mCameraDevice = cameraDevice;
     mVideoCapture.open(cameraDevice);
 
+    mVideoCapture.set(cv::CAP_PROP_FOURCC, CV_FOURCC('M','J','P','G'));
     mVideoCapture.set(cv::CAP_PROP_FRAME_WIDTH, resolution.width());
     mVideoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, resolution.height());
-
     mCaptureTimer.start(frameRate);
 
     mMarkerSize = markerSize;
