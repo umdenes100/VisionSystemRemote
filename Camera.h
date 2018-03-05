@@ -46,19 +46,18 @@ private:
     aruco::CameraParameters mCameraParameters;
 
     float mMarkerSize;
-
-    Arena& mArena;
-
     bool mDrawCustom;
     bool mDrawObstacles;
     bool mDrawDestination;
-
-    Position mCustomCoordinate;
 
     uint mCameraDevice;
     uint mBrightness;
     uint mFocus;
     uint mSharpness;
+
+    Position mCustomCoordinate;
+
+    Arena& mArena;
 };
 
 #endif // CAMERA_H

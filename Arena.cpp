@@ -9,13 +9,16 @@ const float TARGET_DIAMETER = 0.18;
 
 Arena::Arena()
 {
-    mOriginPx[0] = 0;
-    mOriginPx[1] = 0;
-    mXAxisPx[0] = 0;
-    mXAxisPx[1] = 0;
+    mOriginPx[0] = 500;
+    mOriginPx[1] = 500;
+    mXAxisPx[0] = 600;
+    mXAxisPx[1] = 600;
     mObstacles[0] = {2.0, 2.0, 1.0, 1.0};
     mObstacles[1] = {3.0, 1.5, 0.8, 0.2};
     mObstacles[2] = {1.5, 3.2, 1.2, 1.4};
+//    mPpm = 1;
+    mWidthM = 4;
+    mHeightM = 2;
 }
 
 // Converts arena coordinates into pixel coordinates

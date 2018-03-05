@@ -16,6 +16,18 @@ public:
     explicit Controller(QObject *parent = 0);
     void start();
 
+    void onShowDestinationChanged(bool checked);
+    void onShowObstaclesChanged(bool checked);
+    void onShowCustomCoordinateChanged(bool checked);
+    void onCustomXChanged(double x);
+    void onCustomYChanged(double y);
+    void onRandomize();
+
+    void onApplySettings(int cameraDevice);
+    void onFocusChanged(int focus);
+    void onBrightnessChanged(int brightness);
+    void onSharpnessChanged(int sharpness);
+
 signals:
 
 public slots:
