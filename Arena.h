@@ -13,7 +13,7 @@ class Arena {
 public:
     explicit Arena();
     cv::Point cameraCoordinate(float x, float y);
-    void draw(cv::Mat& image, bool drawObstacles, bool drawDestination);
+    void draw(cv::Mat& image);
     void drawCircle(cv::Mat& image, float x, float y, float radius);
     void drawRectangle(cv::Mat& image, float x, float y, float width, float height);
     bool getPosition(int markerId, Marker& marker);
@@ -22,6 +22,12 @@ public:
     void randomize();
     void setSize(float width, float height);
     Marker translate(aruco::Marker m);
+
+    void onCustomXChanged(double x);
+    void onCustomYChanged(double y);
+    void onDrawCustomChanged(bool draw);
+    void onDrawDestinationChanged(bool draw);
+    void onDrawObstaclesChanged(bool draw);
 
 private:
     int mOriginPx[2];
@@ -40,6 +46,12 @@ private:
 
     inline float max(float a, float b);
     inline float min(float a, float b);
+
+    bool mDrawCustom;
+    bool mDrawObstacles;
+    bool mDrawDestination;
+
+    Position mCustomCoordinate;
 };
 
 #endif /* ARENA_H */

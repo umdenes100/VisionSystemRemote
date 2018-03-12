@@ -16,27 +16,27 @@ void Controller::start() {
 
 void Controller::onShowDestinationChanged(bool checked)
 {
-    mCamera.onDrawDestinationChanged(checked);
+    mArena.onDrawDestinationChanged(checked);
 }
 
 void Controller::onShowObstaclesChanged(bool checked)
 {
-    mCamera.onDrawObstaclesChanged(checked);
+    mArena.onDrawObstaclesChanged(checked);
 }
 
 void Controller::onShowCustomCoordinateChanged(bool checked)
 {
-    mCamera.onDrawCustomChanged(checked);
+    mArena.onDrawCustomChanged(checked);
 }
 
 void Controller::onCustomXChanged(double x)
 {
-    mCamera.onCustomXChanged(x);
+    mArena.onCustomXChanged(x);
 }
 
 void Controller::onCustomYChanged(double y)
 {
-    mCamera.onCustomXChanged(y);
+    mArena.onCustomXChanged(y);
 }
 
 
