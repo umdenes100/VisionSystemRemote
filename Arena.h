@@ -2,6 +2,7 @@
 #define ARENA_H
 
 #include <QMap>
+#include <QMutex>
 #include <opencv2/core.hpp>
 #include <vector>
 #include <aruco/aruco.h>
@@ -33,6 +34,7 @@ private:
     int mOriginPx[2];
     int mXAxisPx[2];
 
+    QMutex mArenaMutex;
     float mWidthM;
     float mHeightM;
     float mPpm;
@@ -42,13 +44,17 @@ private:
     Obstacle mObstacles[3];
     Position mTargetLocation;
 
+    QMutex mMarkersMutex;
     QMap<int, Marker> mMarkers;
 
     inline float max(float a, float b);
     inline float min(float a, float b);
 
+    QMutex mCustomMutex;
     bool mDrawCustom;
+    QMutex mObstaclesMutex;
     bool mDrawObstacles;
+    QMutex mDestinationMutex;
     bool mDrawDestination;
 
     Position mCustomCoordinate;
