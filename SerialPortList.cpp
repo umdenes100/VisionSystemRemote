@@ -14,7 +14,6 @@ SerialPortList::SerialPortList(Arena& arena, QObject *parent) :
 }
 
 QMap<QString, SerialPort *>& SerialPortList::getMap(){
-    refreshPorts();
     return mSerialPorts;
 }
 
