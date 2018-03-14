@@ -24,6 +24,7 @@ public slots:
 signals:
 
 private slots:
+    void start();
     void onNewImageConnection();
     void onNewMessageConnection();
     void addNameToMap(QString name);
@@ -43,7 +44,7 @@ private:
     QWebSocketServer mMessageServer;
     QMap<QString, QList<QWebSocket*>> mMessageClients;
 
-    SerialPortList mSerialPortList;
+    SerialPortList* mSerialPortList;
 
 };
 

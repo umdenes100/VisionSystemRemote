@@ -7,20 +7,19 @@
 #include <QPair>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QMutex>
 
-Server::Server(Arena& arena, QObject *parent) :
+Server::Server(Arena& arena, SerialPortList* list, QObject *parent) :
     QObject(parent),
     mImageServer(),
     mMessageServer(QStringLiteral("LTFs"), QWebSocketServer::NonSecureMode, this),
-    mSerialPortList(arena)
+    mSerialPortList(list)
 {
-    connect(&mSerialPortList, SIGNAL(newMessage(QString,QString)), SLOT(onNewMessage(QString,QString)));
-    connect(&mSerialPortList, SIGNAL(newSerialPort(QString)), SLOT(addNameToMap(QString)));
-    connect(&mSerialPortList, SIGNAL(newName()), SLOT(onNewName()));
-    connect(&mSerialPortList, SIGNAL(newCommand(QString,CommandType,QString)), SLOT(onNewCommand(QString,CommandType,QString)));
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
     connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
+}
 
+void Server::start() {
     qDebug() << "Starting image server...";
     mImageServer.listen(QHostAddress::Any, 8080);
     qDebug() << "Server listening on port 8080";
@@ -32,7 +31,7 @@ Server::Server(Arena& arena, QObject *parent) :
     mMessageClients.insert("", QList<QWebSocket *>());
 }
 
-void Server::addNameToMap(QString name){
+void Server::addNameToMap(QString name) {
     mMessageClients.insert(name, QList<QWebSocket *>());
 }
 
@@ -68,9 +67,10 @@ void Server::onNewMessageConnection() {
     QWebSocket* socket = mMessageServer.nextPendingConnection();
 
     connect(socket, SIGNAL(textMessageReceived(QString)), SLOT(onMessageReceived(QString)));
-
+    mSerialPortList->mSerialPortsMutex.lock();
     QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
     QString json = jsonify(serialPorts);
+    mSerialPortList->mSerialPortsMutex.unlock();
     socket->sendTextMessage(json);
 
     mMessageClients[""].append(socket);
@@ -84,8 +84,10 @@ void Server::onNewMessage(QString portName, QString message) {
 }
 
 void Server::onNewName() {
+    mSerialPortList->mSerialPortsMutex.lock();
     QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
     QString json = jsonify(serialPorts);
+    mSerialPortList->mSerialPortsMutex.unlock();
 
     foreach (QList<QWebSocket*> portClients, mMessageClients.values()) {
         foreach (QWebSocket* socket, portClients) {

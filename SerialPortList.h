@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QMap>
+#include <QMutex>
 
 #include "Arena.h"
 #include "SerialPort.h"
@@ -15,6 +16,7 @@ public:
     explicit SerialPortList(Arena& arena, QObject *parent = 0);
 
     QMap<QString, SerialPort*>& getMap();
+    QMutex mSerialPortsMutex;
 
 signals:
     void newSerialPort();

@@ -2,6 +2,7 @@
 
 #include <QSerialPortInfo>
 #include <QWebSocket>
+#include <QMutexLocker>
 #include <QDebug>
 
 SerialPortList::SerialPortList(Arena& arena, QObject *parent) :
@@ -14,11 +15,11 @@ SerialPortList::SerialPortList(Arena& arena, QObject *parent) :
 }
 
 QMap<QString, SerialPort *>& SerialPortList::getMap(){
-    refreshPorts();
     return mSerialPorts;
 }
 
 void SerialPortList::refreshPorts() {
+    mSerialPortsMutex.lock();
     QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
 
     foreach (QSerialPortInfo port, availablePorts) {
@@ -32,10 +33,12 @@ void SerialPortList::refreshPorts() {
             emit newSerialPort(port.portName());
         }
     }
+    mSerialPortsMutex.unlock();
 }
 
 //NOTE: if devices close unexpectedly, the proper error condition should be checked
 void SerialPortList::onError(QSerialPort::SerialPortError error) {
+    mSerialPortsMutex.lock();
     QObject *sender = QObject::sender();
     qDebug() << sender;
     if (sender != NULL) {
@@ -44,6 +47,7 @@ void SerialPortList::onError(QSerialPort::SerialPortError error) {
         mSerialPorts.remove(serialPort->portName());
         delete serialPort;
     }
+    mSerialPortsMutex.unlock();
 }
 
 void SerialPortList::onNewMessage(QString portName, QString message){

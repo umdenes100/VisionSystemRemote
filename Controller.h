@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include <QObject>
+#include <QThread>
 
 #include "Arena.h"
 #include "Camera.h"
@@ -34,11 +35,14 @@ public slots:
 
 private:
     Arena mArena;
-    Camera mCamera;
+    Camera* mCamera;
 
-    Server mServer;
+    SerialPortList* mSerialPortList;
+    Server* mServer;
 
-
+    QThread mCameraThread;
+    QThread mSerialPortListThread;
+    QThread mServerClass;
 };
 
 #endif // CONTROLLER_H

@@ -6,9 +6,6 @@ Camera::Camera(Arena& arena) : QObject(), mArena(arena) {
     connect(&mCaptureTimer, SIGNAL(timeout()), SLOT(capture()));
     mMarkerDetector.setDetectionMode(aruco::DM_VIDEO_FAST, 0.001);
     mArena.randomize();
-    mDrawCustom = true;
-    mDrawDestination = false;
-    mDrawObstacles = false;
 }
 
 void Camera::capture() {
