@@ -10,12 +10,12 @@ Controller::Controller(QObject *parent) : QObject(parent),
     connect(&mCameraThread, SIGNAL(finished()), mCamera, SLOT(deleteLater()));
     connect(&mCameraThread, SIGNAL(finished()), &mCameraThread, SLOT(deleteLater()));
 
-    mSerialPortList = new mSerialPortList(mArena);
+    mSerialPortList = new SerialPortList(mArena);
     mSerialPortList->moveToThread(&mSerialPortListThread);
     connect(&mSerialPortListThread, SIGNAL(finished()), mSerialPortList, SLOT(deleteLater()));
     connect(&mSerialPortListThread, SIGNAL(finished()), &mSerialPortListThread, SLOT(deleteLater()));
     
-    mServer = new Server(mArena);
+    mServer = new Server(mSerialPortList);
     connect(mCamera, SIGNAL(newFrame(QImage)), mServer, SLOT(onNewFrame(QImage)));
     connect(mSerialPortList, SIGNAL(newMessage(QString,QString)), mServer, SLOT(onNewMessage(QString,QString)));
     connect(mSerialPortList, SIGNAL(newSerialPort(QString)), mServer, SLOT(addNameToMap(QString)));
@@ -26,11 +26,17 @@ Controller::Controller(QObject *parent) : QObject(parent),
     connect(&mServerThread, SIGNAL(started()), mServer, SLOT(start()));
 }
 
+Controller::~Controller(){
+    mCameraThread.quit();
+    mSerialPortListThread.quit();
+    mServerThread.quit();
+}
+
 void Controller::start() {
     mCameraThread.start();
     mSerialPortListThread.start();
     mServerThread.start();
-    mCamera->applySettings(1, QSize(1920, 1080), 15, 0.1);
+    mCamera->applySettings(0, QSize(1920, 1080), 15, 0.1);
 }
 
 void Controller::onShowDestinationChanged(bool checked)

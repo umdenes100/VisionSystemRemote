@@ -15,6 +15,7 @@ class Controller : public QObject
 
 public:
     explicit Controller(QObject *parent = 0);
+    ~Controller();
     void start();
 
     void onShowDestinationChanged(bool checked);
@@ -42,7 +43,7 @@ private:
 
     QThread mCameraThread;
     QThread mSerialPortListThread;
-    QThread mServerClass;
+    QThread mServerThread;
 };
 
 #endif // CONTROLLER_H

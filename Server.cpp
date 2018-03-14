@@ -9,7 +9,7 @@
 #include <QJsonDocument>
 #include <QMutex>
 
-Server::Server(Arena& arena, SerialPortList* list, QObject *parent) :
+Server::Server(SerialPortList* list, QObject *parent) :
     QObject(parent),
     mImageServer(),
     mMessageServer(QStringLiteral("LTFs"), QWebSocketServer::NonSecureMode, this),
@@ -37,6 +37,8 @@ void Server::addNameToMap(QString name) {
 
 void Server::onNewImageConnection() {
     QTcpSocket* socket = mImageServer.nextPendingConnection();
+
+    connect(socket, SIGNAL(disconnected()), SLOT(onImageConnectionEnded()));
     socket->write("HTTP/1.1 200 OK\r\n");
     socket->write("Content-Type: multipart/x-mixed-replace; boundary=newframe\r\n");
     socket->write("\r\n");
@@ -67,8 +69,9 @@ void Server::onNewMessageConnection() {
     QWebSocket* socket = mMessageServer.nextPendingConnection();
 
     connect(socket, SIGNAL(textMessageReceived(QString)), SLOT(onMessageReceived(QString)));
+    connect(socket, SIGNAL(disconnected()), SLOT(onMessageConnectionEnded()));
     mSerialPortList->mSerialPortsMutex.lock();
-    QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
+    QMap<QString, SerialPort *> serialPorts = mSerialPortList->getMap();
     QString json = jsonify(serialPorts);
     mSerialPortList->mSerialPortsMutex.unlock();
     socket->sendTextMessage(json);
@@ -85,7 +88,7 @@ void Server::onNewMessage(QString portName, QString message) {
 
 void Server::onNewName() {
     mSerialPortList->mSerialPortsMutex.lock();
-    QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
+    QMap<QString, SerialPort *> serialPorts = mSerialPortList->getMap();
     QString json = jsonify(serialPorts);
     mSerialPortList->mSerialPortsMutex.unlock();
 
@@ -114,6 +117,18 @@ void Server::onNewCommand(QString portName, CommandType type, QString message) {
     QString jsonMessage = jsonify(type, message);
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonMessage);
+    }
+}
+
+void Server::onImageConnectionEnded() {
+    QTcpSocket* socket = static_cast<QTcpSocket*>(QObject::sender());
+    mImageClients.removeOne(socket);
+}
+
+void Server::onMessageConnectionEnded() {
+    QWebSocket* socket = static_cast<QWebSocket*>(QObject::sender());
+    foreach(QString key, mMessageClients.keys()){
+        mMessageClients[key].removeOne(socket);
     }
 }
 

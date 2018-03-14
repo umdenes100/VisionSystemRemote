@@ -16,7 +16,7 @@ class Server : public QObject
 {
     Q_OBJECT
 public:
-    explicit Server(Arena& arena, QObject *parent = 0);
+    explicit Server(SerialPortList* list, QObject *parent = 0);
 
 public slots:
     void onNewFrame(QImage frame);
@@ -32,6 +32,8 @@ private slots:
     void onNewName();
     void onMessageReceived(QString message);
     void onNewCommand(QString portName, CommandType type, QString message);
+    void onImageConnectionEnded();
+    void onMessageConnectionEnded();
 
 private:
     QString jsonify(QMap<QString, SerialPort*>);

@@ -59,5 +59,6 @@ void SerialPortList::onNewName() {
 }
 
 void SerialPortList::onNewCommand(QString portName, CommandType type, QString message) {
+    qDebug() << portName << ": " << message;
     emit newCommand(portName, type, message);
 }
