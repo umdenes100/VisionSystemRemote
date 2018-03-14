@@ -34,28 +34,27 @@ TeamType SerialPort::getTeamType(){
 }
 
 void SerialPort::onReadyRead() {
-    QString buffer;
-
     while (bytesAvailable()) {
         char c;
         getChar(&c);
         if (c == '#') {
             commandMode = true;
-            emit newMessage(portName(), buffer);
-            buffer = QString("");
+            emit newMessage(portName(), mBuffer);
+            mBuffer = QString("");
         } else {
            if (commandMode) {
                 if(c == '*') {
-                    processCommand(buffer);
+                    processCommand(mBuffer);
+                    mBuffer = QString("");
                     commandMode = false;
                 }else {
-                    buffer.append(c);
+                    mBuffer.append(c);
                 }
            } else {
-                buffer.append(c);
+                mBuffer.append(c);
                 if(c == '\n') {
-                    emit newMessage(portName(), buffer);
-                    buffer = QString("");
+                    emit newMessage(portName(), mBuffer);
+                    mBuffer = QString("");
                 }
            }
         }

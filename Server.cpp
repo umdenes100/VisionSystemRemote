@@ -7,20 +7,19 @@
 #include <QPair>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QMutex>
 
-Server::Server(Arena& arena, QObject *parent) :
+Server::Server(SerialPortList* list, QObject *parent) :
     QObject(parent),
     mImageServer(),
     mMessageServer(QStringLiteral("LTFs"), QWebSocketServer::NonSecureMode, this),
-    mSerialPortList(arena)
+    mSerialPortList(list)
 {
-    connect(&mSerialPortList, SIGNAL(newMessage(QString,QString)), SLOT(onNewMessage(QString,QString)));
-    connect(&mSerialPortList, SIGNAL(newSerialPort(QString)), SLOT(addNameToMap(QString)));
-    connect(&mSerialPortList, SIGNAL(newName()), SLOT(onNewName()));
-    connect(&mSerialPortList, SIGNAL(newCommand(QString,CommandType,QString)), SLOT(onNewCommand(QString,CommandType,QString)));
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
     connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
+}
 
+void Server::start() {
     qDebug() << "Starting image server...";
     mImageServer.listen(QHostAddress::Any, 8080);
     qDebug() << "Server listening on port 8080";
@@ -32,12 +31,14 @@ Server::Server(Arena& arena, QObject *parent) :
     mMessageClients.insert("", QList<QWebSocket *>());
 }
 
-void Server::addNameToMap(QString name){
+void Server::addNameToMap(QString name) {
     mMessageClients.insert(name, QList<QWebSocket *>());
 }
 
 void Server::onNewImageConnection() {
     QTcpSocket* socket = mImageServer.nextPendingConnection();
+
+    connect(socket, SIGNAL(disconnected()), SLOT(onImageConnectionEnded()));
     socket->write("HTTP/1.1 200 OK\r\n");
     socket->write("Content-Type: multipart/x-mixed-replace; boundary=newframe\r\n");
     socket->write("\r\n");
@@ -68,9 +69,11 @@ void Server::onNewMessageConnection() {
     QWebSocket* socket = mMessageServer.nextPendingConnection();
 
     connect(socket, SIGNAL(textMessageReceived(QString)), SLOT(onMessageReceived(QString)));
-
-    QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
+    connect(socket, SIGNAL(disconnected()), SLOT(onMessageConnectionEnded()));
+    mSerialPortList->mSerialPortsMutex.lock();
+    QMap<QString, SerialPort *> serialPorts = mSerialPortList->getMap();
     QString json = jsonify(serialPorts);
+    mSerialPortList->mSerialPortsMutex.unlock();
     socket->sendTextMessage(json);
 
     mMessageClients[""].append(socket);
@@ -84,8 +87,10 @@ void Server::onNewMessage(QString portName, QString message) {
 }
 
 void Server::onNewName() {
-    QMap<QString, SerialPort *> serialPorts = mSerialPortList.getMap();
+    mSerialPortList->mSerialPortsMutex.lock();
+    QMap<QString, SerialPort *> serialPorts = mSerialPortList->getMap();
     QString json = jsonify(serialPorts);
+    mSerialPortList->mSerialPortsMutex.unlock();
 
     foreach (QList<QWebSocket*> portClients, mMessageClients.values()) {
         foreach (QWebSocket* socket, portClients) {
@@ -112,6 +117,18 @@ void Server::onNewCommand(QString portName, CommandType type, QString message) {
     QString jsonMessage = jsonify(type, message);
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonMessage);
+    }
+}
+
+void Server::onImageConnectionEnded() {
+    QTcpSocket* socket = static_cast<QTcpSocket*>(QObject::sender());
+    mImageClients.removeOne(socket);
+}
+
+void Server::onMessageConnectionEnded() {
+    QWebSocket* socket = static_cast<QWebSocket*>(QObject::sender());
+    foreach(QString key, mMessageClients.keys()){
+        mMessageClients[key].removeOne(socket);
     }
 }
 

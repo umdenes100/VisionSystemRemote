@@ -22,11 +22,6 @@ public:
 public slots:
     void applySettings(uint cameraDevice, QSize resolution, uint frameRate, float markerSize);
     void onBrightnessChanged(int brightness);
-    void onCustomXChanged(double x);
-    void onCustomYChanged(double y);
-    void onDrawCustomChanged(bool draw);
-    void onDrawDestinationChanged(bool draw);
-    void onDrawObstaclesChanged(bool draw);
     void onFocusChanged(int focus);
     void onSharpnessChanged(int sharpness);
 
@@ -46,16 +41,11 @@ private:
     aruco::CameraParameters mCameraParameters;
 
     float mMarkerSize;
-    bool mDrawCustom;
-    bool mDrawObstacles;
-    bool mDrawDestination;
 
     uint mCameraDevice;
     uint mBrightness;
     uint mFocus;
     uint mSharpness;
-
-    Position mCustomCoordinate;
 
     Arena& mArena;
 };

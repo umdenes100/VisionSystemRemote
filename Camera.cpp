@@ -6,9 +6,6 @@ Camera::Camera(Arena& arena) : QObject(), mArena(arena) {
     connect(&mCaptureTimer, SIGNAL(timeout()), SLOT(capture()));
     mMarkerDetector.setDetectionMode(aruco::DM_VIDEO_FAST, 0.001);
     mArena.randomize();
-    mDrawCustom = true;
-    mDrawDestination = false;
-    mDrawObstacles = false;
 }
 
 void Camera::capture() {
@@ -20,11 +17,7 @@ void Camera::capture() {
 
         mMarkerDetector.detect(image, markers, mCameraParameters, mMarkerSize);
         mArena.processMarkers(image, markers);
-        mArena.draw(image, mDrawObstacles, mDrawDestination);
-
-        if (mDrawCustom) {
-            mArena.drawCircle(image, mCustomCoordinate.x, mCustomCoordinate.y, 0.09);
-        }
+        mArena.draw(image);
 
         emit newFrame(cvMatToQImage(image));
     }
@@ -50,26 +43,6 @@ void Camera::onBrightnessChanged(int brightness) {
     command = command + QString::number(brightness);
 
     system(command.toStdString().c_str());
-}
-
-void Camera::onCustomXChanged(double x) {
-    mCustomCoordinate.x = static_cast<float>(x);
-}
-
-void Camera::onCustomYChanged(double y) {
-    mCustomCoordinate.y = static_cast<float>(y);
-}
-
-void Camera::onDrawCustomChanged(bool draw) {
-    mDrawCustom = draw;
-}
-
-void Camera::onDrawDestinationChanged(bool draw) {
-    mDrawDestination = draw;
-}
-
-void Camera::onDrawObstaclesChanged(bool draw) {
-    mDrawObstacles = draw;
 }
 
 void Camera::onFocusChanged(int focus) {

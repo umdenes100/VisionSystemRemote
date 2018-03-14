@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include <QObject>
+#include <QThread>
 
 #include "Arena.h"
 #include "Camera.h"
@@ -14,6 +15,7 @@ class Controller : public QObject
 
 public:
     explicit Controller(QObject *parent = 0);
+    ~Controller();
     void start();
 
     void onShowDestinationChanged(bool checked);
@@ -34,11 +36,14 @@ public slots:
 
 private:
     Arena mArena;
-    Camera mCamera;
+    Camera* mCamera;
 
-    Server mServer;
+    SerialPortList* mSerialPortList;
+    Server* mServer;
 
-
+    QThread mCameraThread;
+    QThread mSerialPortListThread;
+    QThread mServerThread;
 };
 
 #endif // CONTROLLER_H

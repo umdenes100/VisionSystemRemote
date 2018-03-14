@@ -46,6 +46,7 @@ private:
     bool running = false;
     TeamType mType;
     Mission *mission;
+    QString mBuffer;
 
     void processCommand(QString buffer);
 };
