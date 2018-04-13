@@ -34,7 +34,7 @@ public:
 signals:
     void newMessage(QString portName, QString message);
     void newName();
-    void newCommand(QString portName, CommandType type, QString message);
+    void newCommand(QString portName, int type, QString message);
 
 private slots:
     void onReadyRead();

@@ -28,7 +28,7 @@ void SerialPortList::refreshPorts() {
             connect(serialPort, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(onError(QSerialPort::SerialPortError)));
             connect(serialPort, SIGNAL(newMessage(QString, QString)), this, SLOT(onNewMessage(QString, QString)));
             connect(serialPort, SIGNAL(newName()), this, SLOT(onNewName()));
-            connect(serialPort, SIGNAL(newCommand(QString,CommandType,QString)), SLOT(onNewCommand(QString,CommandType,QString)));
+            connect(serialPort, SIGNAL(newCommand(QString,int,QString)), SLOT(onNewCommand(QString,int,QString)));
             mSerialPorts.insert(port.portName(), serialPort);
             emit newSerialPort(port.portName());
         }
@@ -58,7 +58,7 @@ void SerialPortList::onNewName() {
     emit newName();
 }
 
-void SerialPortList::onNewCommand(QString portName, CommandType type, QString message) {
-    qDebug() << portName << ": " << message;
+void SerialPortList::onNewCommand(QString portName, int type, QString message) {
+    // qDebug() << portName << ": " << message;
     emit newCommand(portName, type, message);
 }

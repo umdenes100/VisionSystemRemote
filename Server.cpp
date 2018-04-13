@@ -113,8 +113,10 @@ void Server::onMessageReceived(QString message) {
     }
 }
 
-void Server::onNewCommand(QString portName, CommandType type, QString message) {
+void Server::onNewCommand(QString portName, int type, QString message) {
+    qDebug() << "q";
     QString jsonMessage = jsonify(type, message);
+    qDebug() << jsonMessage;
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonMessage);
     }
@@ -161,7 +163,7 @@ QString Server::jsonify(QString message) {
     return QString(doc.toJson(QJsonDocument::Compact));
 }
 
-QString Server::jsonify(CommandType type, QString message){
+QString Server::jsonify(int type, QString message){
     QJsonObject jsonMessage, jsonContents;
 
     jsonMessage.insert("TYPE", "MESSAGE");
