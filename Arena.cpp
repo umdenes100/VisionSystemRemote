@@ -209,8 +209,8 @@ void Arena::randomize() {
     if (rand() % 2) {
         mTargetLocation.x =
             (rand() % 100) *
-            (quadrantBounds[2][1] - quadrantBounds[2][0] - TARGET_DIAMETER) / 100.0 +
-            quadrantBounds[2][0] + TARGET_DIAMETER;
+            (quadrantBounds[2][1] - max(quadrantBounds[2][0], mObstacles[1].x + mObstacles[1].width / 2 + 0.5) - TARGET_DIAMETER) / 100.0 +
+            max(quadrantBounds[2][0], mObstacles[1].x + mObstacles[1].width / 2 + 0.5) + TARGET_DIAMETER;
         mTargetLocation.y =
             (rand() % 100) *
             (quadrantBounds[2][3] - quadrantBounds[2][2] - TARGET_DIAMETER) / 100.0 +
@@ -228,8 +228,8 @@ void Arena::randomize() {
     } else {
         mTargetLocation.x =
             (rand() % 100) *
-            (quadrantBounds[3][1] - quadrantBounds[3][0] - TARGET_DIAMETER) / 100.0 +
-            quadrantBounds[3][0] + TARGET_DIAMETER;
+            (quadrantBounds[3][1] - max(quadrantBounds[3][0], mObstacles[0].x + mObstacles[0].width / 2 + 0.5) - TARGET_DIAMETER) / 100.0 +
+            max(quadrantBounds[3][0], mObstacles[0].x + mObstacles[0].width / 2 + 0.5) + TARGET_DIAMETER;
         mTargetLocation.y =
             (rand() % 100) *
             (quadrantBounds[3][3] - quadrantBounds[3][2] - TARGET_DIAMETER) / 100.0 +
