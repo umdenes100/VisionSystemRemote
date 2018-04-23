@@ -163,8 +163,8 @@ void Arena::processMarkers(cv::Mat& image, std::vector<aruco::Marker>& markers) 
 void Arena::randomize() {
     static const float quadrantBounds[4][4] = {
         // Min x, Max x, Min y, Max y
-        {1.35, 2.25, 1.0, 1.8},
-        {1.35, 2.25, 0.2, 1.0},
+        {1.4, 2.25, 1.0, 1.8},
+        {1.4, 2.25, 0.2, 1.0},
         {2.25, 3.8, 0.2, 1.0},
         {2.25, 3.8, 1.0, 1.8}
     };
@@ -209,7 +209,7 @@ void Arena::randomize() {
     if (rand() % 2) {
         mTargetLocation.x =
             (rand() % 100) *
-            (quadrantBounds[2][1] - max(quadrantBounds[2][0], mObstacles[1].x + mObstacles[1].width / 2 + 0.5) - TARGET_DIAMETER) / 100.0 +
+            (quadrantBounds[2][1] - 0.3 - max(quadrantBounds[2][0], mObstacles[1].x + mObstacles[1].width / 2 + 0.5) - TARGET_DIAMETER) / 100.0 +
             max(quadrantBounds[2][0], mObstacles[1].x + mObstacles[1].width / 2 + 0.5) + TARGET_DIAMETER;
         mTargetLocation.y =
             (rand() % 100) *
@@ -228,7 +228,7 @@ void Arena::randomize() {
     } else {
         mTargetLocation.x =
             (rand() % 100) *
-            (quadrantBounds[3][1] - max(quadrantBounds[3][0], mObstacles[0].x + mObstacles[0].width / 2 + 0.5) - TARGET_DIAMETER) / 100.0 +
+            (quadrantBounds[3][1] - 0.3 - max(quadrantBounds[3][0], mObstacles[0].x + mObstacles[0].width / 2 + 0.5) - TARGET_DIAMETER) / 100.0 +
             max(quadrantBounds[3][0], mObstacles[0].x + mObstacles[0].width / 2 + 0.5) + TARGET_DIAMETER;
         mTargetLocation.y =
             (rand() % 100) *
