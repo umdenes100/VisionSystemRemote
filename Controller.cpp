@@ -61,7 +61,7 @@ void Controller::onCustomXChanged(double x)
 
 void Controller::onCustomYChanged(double y)
 {
-    mArena.onCustomXChanged(y);
+    mArena.onCustomYChanged(y);
 }
 
 
