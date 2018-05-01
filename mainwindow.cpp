@@ -34,7 +34,9 @@ void MainWindow::on_customYSpinBox_valueChanged(double arg1) {
 }
 
 void MainWindow::on_randomizeButton_clicked() {
-    mController.onRandomize();
+    Position target = mController.onRandomize();
+    ui->showDestinationCheckBox->setText(QString("Show Destination (%1,%2)")
+                                         .arg(QString::number(target.x), QString::number(target.y)));
 }
 
 void MainWindow::on_applySettingsButton_clicked() {

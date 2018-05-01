@@ -65,9 +65,10 @@ void Controller::onCustomYChanged(double y)
 }
 
 
-void Controller::onRandomize()
+Position Controller::onRandomize()
 {
     mArena.randomize();
+    return mArena.getTargetLocation();
 }
 
 void Controller::onApplySettings(int cameraDevice)

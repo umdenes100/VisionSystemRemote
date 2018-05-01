@@ -23,7 +23,7 @@ public:
     void onShowCustomCoordinateChanged(bool checked);
     void onCustomXChanged(double x);
     void onCustomYChanged(double y);
-    void onRandomize();
+    Position onRandomize();
 
     void onApplySettings(int cameraDevice);
     void onFocusChanged(int focus);
