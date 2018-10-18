@@ -36,6 +36,8 @@ void Camera::applySettings(uint cameraDevice, QSize resolution, uint frameRate, 
         //check for whether a live camera is plugged in (Besteker)
         //Besteker has different brightness, sharpness settings and doesn't have a focus option
         isBestekerCamera = true;
+    } else {
+        isBestekerCamera = false;
     }
     mVideoCapture.open(cameraDevice);
 
