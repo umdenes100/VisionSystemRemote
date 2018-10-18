@@ -30,6 +30,8 @@ private slots:
     void on_sharpnessSlider_valueChanged(int value);
     void on_focusSlider_valueChanged(int value);
 
+    void on_resetCamera_clicked();
+
 private:
     Controller& mController;
     Ui::MainWindow *ui;

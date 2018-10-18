@@ -17,6 +17,7 @@ public:
     explicit Controller(QObject *parent = 0);
     ~Controller();
     void start();
+    Camera* mCamera;
 
     void onShowDestinationChanged(bool checked);
     void onShowObstaclesChanged(bool checked);
@@ -36,7 +37,6 @@ public slots:
 
 private:
     Arena mArena;
-    Camera* mCamera;
 
     SerialPortList* mSerialPortList;
     Server* mServer;

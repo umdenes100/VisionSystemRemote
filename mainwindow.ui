@@ -15,6 +15,76 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_2">
+    <item row="1" column="0">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Camera Settings</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="6" column="0" colspan="2">
+        <widget class="QSlider" name="focusSlider">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QSlider" name="brightnessSlider">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QSpinBox" name="cameraDeviceSpinBox"/>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="applySettingsButton">
+         <property name="text">
+          <string>Apply</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QSlider" name="sharpnessSlider">
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Focus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Sharpness</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Brightness</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item row="0" column="0">
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
@@ -104,65 +174,11 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QGroupBox" name="groupBox_2">
-      <property name="title">
-       <string>Camera Settings</string>
+    <item row="2" column="0">
+     <widget class="QPushButton" name="resetCamera">
+      <property name="text">
+       <string>Reset Camera</string>
       </property>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="6" column="0" colspan="2">
-        <widget class="QSlider" name="focusSlider">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QSlider" name="brightnessSlider">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QSpinBox" name="cameraDeviceSpinBox"/>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="applySettingsButton">
-         <property name="text">
-          <string>Apply</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QSlider" name="sharpnessSlider">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="2">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Focus</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Sharpness</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Brightness</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
    </layout>

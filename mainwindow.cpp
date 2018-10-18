@@ -41,6 +41,7 @@ void MainWindow::on_randomizeButton_clicked() {
 
 void MainWindow::on_applySettingsButton_clicked() {
     mController.onApplySettings(ui->cameraDeviceSpinBox->value());
+    this->on_resetCamera_clicked();
 }
 
 void MainWindow::on_brightnessSlider_valueChanged(int value) {
@@ -53,4 +54,18 @@ void MainWindow::on_sharpnessSlider_valueChanged(int value) {
 
 void MainWindow::on_focusSlider_valueChanged(int value) {
     mController.onFocusChanged(value);
+}
+
+void MainWindow::on_resetCamera_clicked()
+{
+    mController.mCamera->resetCamera();
+    if (mController.mCamera->isBestekerCamera) {
+        ui->focusSlider->setValue(0);
+        ui->brightnessSlider->setValue(0);
+        ui->sharpnessSlider->setValue(255);
+    } else {
+        ui->focusSlider->setValue(128);
+        ui->brightnessSlider->setValue(128);
+        ui->sharpnessSlider->setValue(128);
+    }
 }

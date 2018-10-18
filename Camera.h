@@ -18,6 +18,8 @@ class Camera : public QObject {
 
 public:
     explicit Camera(Arena& arena);
+    bool isBestekerCamera;
+    void resetCamera();
 
 public slots:
     void applySettings(uint cameraDevice, QSize resolution, uint frameRate, float markerSize);

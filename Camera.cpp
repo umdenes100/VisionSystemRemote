@@ -1,5 +1,5 @@
 #include "Camera.h"
-
+#include <QProcess>
 #include <QDebug>
 
 Camera::Camera(Arena& arena) : QObject(), mArena(arena) {
@@ -25,6 +25,18 @@ void Camera::capture() {
 
 void Camera::applySettings(uint cameraDevice, QSize resolution, uint frameRate, float markerSize) {
     mCameraDevice = cameraDevice;
+    QString bestekerCamera = QString("USB  Live  Camera");//name of the Besteker camera
+    QString command = QString("v4l2-ctl --list-devices");
+
+    QProcess process;
+    process.start(command);
+    process.waitForFinished(-1);
+
+    if (process.readAllStandardOutput().indexOf(bestekerCamera) != -1) {
+        //check for whether a live camera is plugged in (Besteker)
+        //Besteker has different brightness, sharpness settings and doesn't have a focus option
+        isBestekerCamera = true;
+    }
     mVideoCapture.open(cameraDevice);
 
     mVideoCapture.set(cv::CAP_PROP_FOURCC, CV_FOURCC('M','J','P','G'));
@@ -35,18 +47,11 @@ void Camera::applySettings(uint cameraDevice, QSize resolution, uint frameRate, 
     mMarkerSize = markerSize;
 }
 
-void Camera::onBrightnessChanged(int brightness) {
-    QString command;
-    command = command + QString("v4l2-ctl -d /dev/video");
-    command = command + QString::number(mCameraDevice);
-    command = command + QString(" -c brightness=");
-    command = command + QString::number(brightness);
-
-    system(command.toStdString().c_str());
-}
-
 void Camera::onFocusChanged(int focus) {
     QString command;
+
+    if (isBestekerCamera) return;
+
     command = command + QString("v4l2-ctl -d /dev/video");
     command = command + QString::number(mCameraDevice);
     command = command + QString(" -c focus_absolute=");
@@ -57,12 +62,75 @@ void Camera::onFocusChanged(int focus) {
 
 void Camera::onSharpnessChanged(int sharpness) {
     QString command;
+
+    if (isBestekerCamera) {
+        sharpness = sharpness * 6.0 / 255.0;
+    }
     command = command + QString("v4l2-ctl -d /dev/video");
     command = command + QString::number(mCameraDevice);
     command = command + QString(" -c sharpness=");
     command = command + QString::number(sharpness);
 
     system(command.toStdString().c_str());
+}
+
+void Camera::onBrightnessChanged(int brightness) {
+    QString command;
+    if (isBestekerCamera) {
+        brightness = brightness * 128.0 / 255.0 - 64;
+    }
+    command = command + QString("v4l2-ctl -d /dev/video");
+    command = command + QString::number(mCameraDevice);
+    command = command + QString(" -c brightness=");
+    command = command + QString::number(brightness);
+
+    system(command.toStdString().c_str());
+}
+
+void Camera::resetCamera() {
+    //'v4l2-ctl -d /dev/video2 --all' lists default values for the camera
+    int sharpness, brightness, contrast;
+    QString command;
+    if (isBestekerCamera) {
+        sharpness = 6;
+        contrast = 64;
+        brightness = -64;
+    } else {
+        sharpness = 128;
+        contrast = 128;
+        brightness = 128;
+    }
+
+    //set sharpness
+    command = command + QString("v4l2-ctl -d /dev/video");
+    command = command + QString::number(mCameraDevice);
+    command = command + QString(" -c sharpness=");
+    command = command + QString::number(sharpness);
+    system(command.toStdString().c_str());
+
+    //set brightness
+    command = QString("v4l2-ctl -d /dev/video");
+    command = command + QString::number(mCameraDevice);
+    command = command + QString(" -c brightness=");
+    command = command + QString::number(brightness);
+    system(command.toStdString().c_str());
+
+    //set contrast
+    command = QString("v4l2-ctl -d /dev/video");
+    command = command + QString::number(mCameraDevice);
+    command = command + QString(" -c contrast=");
+    command = command + QString::number(contrast);
+    system(command.toStdString().c_str());
+
+    //set focus
+    if (!isBestekerCamera) {
+        command = QString("v4l2-ctl -d /dev/video");
+        command = command + QString::number(mCameraDevice);
+        command = command + QString(" -c focus_absolute=");
+        command = command + QString::number(0);
+        system(command.toStdString().c_str());
+    }
+
 }
 
 inline QImage Camera::cvMatToQImage(const cv::Mat& inMat)
