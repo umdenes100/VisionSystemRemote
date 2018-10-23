@@ -115,30 +115,36 @@ bool Arena::getPosition(int markerId, Marker& marker) {
 }
 
 // Translates and stores a set of detected markers
-void Arena::processMarkers(cv::Mat& image, std::vector<aruco::Marker>& markers) {
+void Arena::processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers) {
     mMarkersMutex.lock();
     mMarkers.clear();
 
-    foreach (aruco::Marker marker, markers) {
-        marker.draw(image, cv::Scalar(0, 0, 255), 2);
+    foreach (ArucoMarker marker, markers) {
+        //marker.draw(image, cv::Scalar(0, 0, 255), 2);
 
         if (marker.id == 0) {
             mArenaMutex.lock();
-            mOriginPx[0] = marker[0].x;
-            mOriginPx[1] = marker[0].y;
+            //mOriginPx[0] = marker[0].x;
+            mOriginPx[0] = marker.x[0];
+            //mOriginPx[1] = marker[0].y;
+            mOriginPx[1] = marker.y[0];
             mArenaMutex.unlock();
         } else if (marker.id == 1) {
             mArenaMutex.lock();
-            mXAxisPx[0] = marker[0].x;
-            mXAxisPx[1] = marker[0].y;
+            //mXAxisPx[0] = marker[0].x;
+            mXAxisPx[0] = marker.x[0];
+            //mXAxisPx[1] = marker[0].y;
+            mXAxisPx[1] = marker.y[0];
             mArenaMutex.unlock();
         } else {
             mMarkers.insert(marker.id, translate(marker));
 
             // Draw an arrow indicating the orientation
             cv::arrowedLine(image,
-                cv::Point(marker[0].x, marker[0].y),
-                cv::Point(marker[1].x, marker[1].y),
+                //cv::Point(marker[0].x, marker[0].y),
+                //cv::Point(marker[1].x, marker[1].y),
+                cv::Point(marker.x[0], marker.y[0]),
+                cv::Point(marker.x[1], marker.y[1]),
                 cv::Scalar(0, 255, 0),
                 3,
                 8,
@@ -257,22 +263,28 @@ void Arena::setSize(float width, float height) {
 }
 
 // Translates an Aruco Marker into a VS Marker and highlights in the image
-Marker Arena::translate(aruco::Marker m) {
+Marker Arena::translate(ArucoMarker m) {
     mArenaMutex.lock();
     // Calculate theta of the marker by comparing the degree of the line created
     // by two corners with the degree of the arena
-    float theta = mTheta - atan2(m[1].y - m[0].y, m[1].x - m[0].x);
+    //float theta = mTheta - atan2(m[1].y - m[0].y, m[1].x - m[0].x);
+    float theta = mTheta - atan2(m.y[1] - m.y[0], m.x[1] - m.x[0]);
+
 
     // Subtract away the origin
-    float fx = m[0].x - mOriginPx[0];
-    float fy = mOriginPx[1] - m[0].y;
+    //float fx = m[0].x - mOriginPx[0];
+    //float fy = mOriginPx[1] - m[0].y;
+    float fx = m.x[0] - mOriginPx[0];
+    float fy = mOriginPx[1] - m.y[0];
 
     // Convert camera frame of reference to arena frame of reference
     float A = fx * cos(mTheta) + fy * sin(mTheta);
     float B = fy * cos(mTheta) - fx * sin(mTheta);
 
     // Shift measurement to center of marker
-    float markerSide = sqrt((m[1].x - m[0].x)*(m[1].x - m[0].x) + (m[1].y - m[0].y)*(m[1].y - m[0].y));
+    //float markerSide = sqrt((m[1].x - m[0].x)*(m[1].x - m[0].x) + (m[1].y - m[0].y)*(m[1].y - m[0].y));
+    float markerSide = sqrt((m.x[1] - m.x[0])*(m.x[1] - m.x[0]) + (m.x[1] - m.x[0])*(m.y[1] - m.y[0]));
+
     if (cos(theta) >= 0) {
         A += sqrt(2) * markerSide / 2 * cos(PI/4 - theta);
         B -= sqrt(2) * markerSide / 2 * sin(PI/4 - theta);

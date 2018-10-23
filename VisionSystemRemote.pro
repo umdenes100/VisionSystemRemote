@@ -56,12 +56,13 @@ HEADERS += \
     missions/DebrisMission.h \
     missions/FireMission.h \
     missions/Mission.h \
-    missions/WaterMission.h
+    missions/WaterMission.h \
+    arucomarker.h
 
 FORMS += \
         mainwindow.ui
 
-unix|win32: LIBS += -L/usr/local/lib -laruco -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc
+unix|win32: LIBS += -L/usr/local/lib -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_aruco -lopencv_imgcodecs -lopencv_imgproc
 
 INCLUDEPATH += /usr/local/include
 DEPENDPATH += /usr/local/include

@@ -4,18 +4,31 @@
 
 Camera::Camera(Arena& arena) : QObject(), mArena(arena) {
     connect(&mCaptureTimer, SIGNAL(timeout()), SLOT(capture()));
-    mMarkerDetector.setDetectionMode(aruco::DM_VIDEO_FAST, 0.001);
+    //mMarkerDetector.setDetectionMode(aruco::DM_VIDEO_FAST, 0.001);
     mArena.randomize();
 }
 
 void Camera::capture() {
     static cv::Mat image;
-    static std::vector<aruco::Marker> markers;
+    //static std::vector<aruco::Marker> markers;
+    std::vector<ArucoMarker> markers;
 
     if (mVideoCapture.isOpened() && mVideoCapture.grab()) {
         mVideoCapture.retrieve(image);
+        //mMarkerDetector.detect(image, markers, mCameraParameters, mMarkerSize);
 
-        mMarkerDetector.detect(image, markers, mCameraParameters, mMarkerSize);
+        std::vector<int> markerIds;
+        std::vector<std::vector<cv::Point2f>> markerCorners;
+        cv::Ptr<cv::aruco::Dictionary> markerDictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_50);
+
+        cv::aruco::detectMarkers(image, markerDictionary, markerCorners, markerIds);
+        cv::aruco::drawDetectedMarkers(image, markerCorners, markerIds);
+
+        for(uint i = 0; i < markerIds.size(); i++) {
+            // qDebug() << markerCorners[i][1].x << ", " << markerCorners[i][0].x;
+            ArucoMarker m(markerIds[i], markerCorners[i][0].x, markerCorners[i][1].x, markerCorners[i][0].y, markerCorners[i][1].y);
+            markers.push_back(m);
+        }
         mArena.processMarkers(image, markers);
         mArena.draw(image);
 
@@ -41,7 +54,8 @@ void Camera::applySettings(uint cameraDevice, QSize resolution, uint frameRate, 
     }
     mVideoCapture.open(cameraDevice);
 
-    mVideoCapture.set(cv::CAP_PROP_FOURCC, CV_FOURCC('M','J','P','G'));
+    //mVideoCapture.set(cv::CAP_PROP_FOURCC, CV_FOURCC('M','J','P','G'));
+    mVideoCapture.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M','J','P','G'));
     mVideoCapture.set(cv::CAP_PROP_FRAME_WIDTH, resolution.width());
     mVideoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, resolution.height());
     mCaptureTimer.start(frameRate);
