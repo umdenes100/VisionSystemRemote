@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <opencv2/imgproc.hpp>
 #include <QMutexLocker>
+#include <QDebug>
 
 const float PI = 3.141592653589;
 const float TARGET_DIAMETER = 0.18;
@@ -105,6 +106,7 @@ void Arena::drawRectangle(cv::Mat& image, float x, float y, float width, float h
 
 bool Arena::getPosition(int markerId, Marker& marker) {
     mMarkersMutex.lock();
+
     if(mMarkers.contains(markerId)){
         marker = mMarkers.value(markerId, Marker(markerId));
         mMarkersMutex.unlock();
@@ -137,7 +139,11 @@ void Arena::processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers) {
             mXAxisPx[1] = marker.y[0];
             mArenaMutex.unlock();
         } else {
-            mMarkers.insert(marker.id, translate(marker));
+            Marker temp = translate(marker);
+            qDebug() << temp.id;
+            qDebug() << temp.x;
+            qDebug() << temp.y;
+            mMarkers.insert(marker.id, temp);
 
             // Draw an arrow indicating the orientation
             cv::arrowedLine(image,
@@ -283,7 +289,7 @@ Marker Arena::translate(ArucoMarker m) {
 
     // Shift measurement to center of marker
     //float markerSide = sqrt((m[1].x - m[0].x)*(m[1].x - m[0].x) + (m[1].y - m[0].y)*(m[1].y - m[0].y));
-    float markerSide = sqrt((m.x[1] - m.x[0])*(m.x[1] - m.x[0]) + (m.x[1] - m.x[0])*(m.y[1] - m.y[0]));
+    float markerSide = sqrt((m.x[1] - m.x[0])*(m.x[1] - m.x[0]) + (m.y[1] - m.y[0])*(m.y[1] - m.y[0]));
 
     if (cos(theta) >= 0) {
         A += sqrt(2) * markerSide / 2 * cos(PI/4 - theta);
@@ -296,8 +302,13 @@ Marker Arena::translate(ArucoMarker m) {
     // Convert to meters and store into Marker
     float x = A / mPpm;
     float y = B / mPpm;
+
     mArenaMutex.unlock();
-    return Marker(m.id, x, y, theta);
+
+    Marker marker = Marker(m.id, x, y, theta);
+
+
+    return marker;
 }
 
 Position Arena::getTargetLocation(){
