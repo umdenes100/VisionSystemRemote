@@ -1,4 +1,4 @@
-#include "SerialPort.h"
+﻿#include "SerialPort.h"
 
 #include <QDebug>
 #include "missions/BlackBoxMission.h"
@@ -37,56 +37,39 @@ void SerialPort::onReadyRead() {
     while (bytesAvailable()) {
         char c;
         getChar(&c);
-        if (c == '#') {
-            commandMode = true;
-            emit newMessage(portName(), mBuffer);
-            mBuffer = QString("");
+        if (c == (char)255) {
+            processCommand(mBuffer);
         } else {
-           if (commandMode) {
-                if(c == '*') {
-                    processCommand(mBuffer);
-                    mBuffer = QString("");
-                    commandMode = false;
-                }else {
-                    mBuffer.append(c);
-                }
-           } else {
-                mBuffer.append(c);
-                if(c == '\n') {
-                    emit newMessage(portName(), mBuffer);
-                    mBuffer = QString("");
-                }
-           }
+            mBuffer.append(c);
         }
     }
-
-
 }
 
 void SerialPort::processCommand(QString buffer){
-    // if we get startMission then the list of serialPorts has changed:
-    bool ok = true;
-    int markerNumber = buffer.toInt(&ok);
-    if (ok) {
-        Marker marker(markerNumber);
-        bool markerPresent = mArena.getPosition(markerNumber, marker);
-        if(markerPresent){
-            QString response = QString("") +
-                    QString::number(marker.id) + QString(",") +
-                    QString::number(marker.x) + QString(",") +
-                    QString::number(marker.y) + QString(",") +
-                    QString::number(marker.theta) + QString("\n");
-            write(QByteArray().append(response));
+    switch ((int)mBuffer[0].unicode()) {
+    case 0:
+        if (buffer.length() == 1) {
+            write(QByteArray().append("\x01"));
         }
-    }else {
-        if (buffer.contains("start")) {
-            running = true;
-            // #start <teamType> <teamName>*
-            QStringList list = buffer.split(" ").mid(0, 2);
-            QString teamName = buffer.section(' ', 2);
-            QString teamString = list[1];
+        break;
+    case 2:
+        qDebug() << "start mission";
+        if (buffer.length() > 2) {
 
-            mType = static_cast<TeamType>(teamString.toInt());
+            QByteArray response = QByteArray();
+            if (mType != BLACK_BOX) {
+                Position destination = mArena.getTargetLocation();
+                response.append(destination.serialize());
+            } else {
+                response = Position().serialize();
+            }
+
+            write(QByteArray().append("\x03").append(response));
+
+            running = true;
+            mTeamName = buffer.mid(2);
+            mType = static_cast<TeamType>((int)buffer[1].unicode());
+
             if (mType == BLACK_BOX) {
                 mission = new BlackBoxMission();
             } else if (mType == CHEMICAL) {
@@ -99,7 +82,6 @@ void SerialPort::processCommand(QString buffer){
                 mission = new WaterMission();
             }
 
-            mTeamName = teamName;
             emit newName();
 
             QString message;
@@ -107,48 +89,51 @@ void SerialPort::processCommand(QString buffer){
             message += "Start of Mission\n";
             message += "**************************\n";
             emit newCommand(portName(), START, message);
-        } else if (buffer.contains("base")) {
-            QString param = buffer.split(" ")[1];
-            QString result = mission->baseObjective(param);
-            QString message;
-            message += "\n*** MISSION MESSAGE ***\n";
-            message += result;
-            message += "**************************\n";
-            emit newCommand(portName(), BASE, message);
-        } else if (buffer.contains("bonus")) {
-            QString param = buffer.split(" ")[1];
+        }
+        break;
+    case 4:
+        if (buffer.length() == 3) {
+            int markerId = buffer[1].unicode() + (buffer[2].unicode() << 8);
+
+            Marker marker(markerId);
+            bool markerPresent = mArena.getPosition(markerId, marker);
+            if (markerPresent) {
+                QByteArray response = QByteArray("\x05").append(marker.serialize());
+                write(response);
+            }
+        }
+        break;
+    case 6:
+        if ((int)buffer[1].unicode()) {
+            // if we have bonus
+            QString param = buffer.mid(2);
             QString result = mission->bonusObjective(param);
             QString message;
             message += "\n*** MISSION MESSAGE ***\n";
             message += result;
             message += "**************************\n";
+            write(QByteArray().append("\x07"));
             emit newCommand(portName(), BONUS, message);
-        } else if (buffer.contains("end")) {
-            if (running) {
-                QString message;
-                message += "\n*** MISSION MESSAGE ***\n";
-                message += "End of mission\n";
-                message += "**************************\n";
-                running = false;
-                emit newCommand(portName(), END, message);
-            }
-        }else if (buffer.contains("destination")) {
-            QString response = QString("");
-            if (mType != BLACK_BOX) {
-                Position destination = mArena.getTargetLocation();
-                response += QString::number(destination.x) + QString(",");
-                response += QString::number(destination.y) + QString("\n");
-            } else {
-                response += QString("0,0\n");
-            }
-            write(QByteArray().append(response));
-        } else if (buffer.contains("navigated")) {
+        } else {
+            QString param = buffer.mid(2);
+            QString result = mission->baseObjective(param);
             QString message;
             message += "\n*** MISSION MESSAGE ***\n";
-            message += "Team has reached destination";
-            message += "\n**************************\n";
-            emit newCommand(portName(), NAVIGATED, message);
+            message += result;
+            message += "**************************\n";
+            write(QByteArray().append("\x07"));
+            emit newCommand(portName(), BASE, message);
         }
+
+        break;
+    case 8:
+        emit newMessage(portName(), buffer.mid(1));
+        break;
+    default:
+        break;
     }
+
+    mBuffer.clear();
+
 }
 

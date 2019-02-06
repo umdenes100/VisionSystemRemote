@@ -140,9 +140,6 @@ void Arena::processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers) {
             mArenaMutex.unlock();
         } else {
             Marker temp = translate(marker);
-            qDebug() << temp.id;
-            qDebug() << temp.x;
-            qDebug() << temp.y;
             mMarkers.insert(marker.id, temp);
 
             // Draw an arrow indicating the orientation
