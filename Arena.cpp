@@ -47,7 +47,7 @@ void Arena::draw(cv::Mat& image) {
         drawCircle(image, mTargetLocation.x, mTargetLocation.y, TARGET_DIAMETER / 2);
     }
 
-    if(mDrawCustom) {
+    if (mDrawCustom) {
         drawCircle(image, mCustomCoordinate.x, mCustomCoordinate.y, 0.09);
     }
 
@@ -131,8 +131,6 @@ void Arena::processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers) {
 
             // Draw an arrow indicating the orientation
             cv::arrowedLine(image,
-                // cv::Point(marker[0].x, marker[0].y),
-                // cv::Point(marker[1].x, marker[1].y),
                 cv::Point(marker.x[0], marker.y[0]),
                 cv::Point(marker.x[1], marker.y[1]),
                 cv::Scalar(0, 255, 0),
@@ -249,10 +247,7 @@ Marker Arena::translate(ArucoMarker m) {
     // float theta = mTheta - atan2(m[1].y - m[0].y, m[1].x - m[0].x);
     float theta = mTheta - atan2(m.y[1] - m.y[0], m.x[1] - m.x[0]);
 
-
     // Subtract away the origin
-    // float fx = m[0].x - mOriginPx[0];
-    // float fy = mOriginPx[1] - m[0].y;
     float fx = m.x[0] - mOriginPx[0];
     float fy = mOriginPx[1] - m.y[0];
 
@@ -261,7 +256,7 @@ Marker Arena::translate(ArucoMarker m) {
     float B = fy * cos(mTheta) - fx * sin(mTheta);
 
     // Shift measurement to center of marker
-    //float markerSide = sqrt((m[1].x - m[0].x)*(m[1].x - m[0].x) + (m[1].y - m[0].y)*(m[1].y - m[0].y));
+    // float markerSide = sqrt((m[1].x - m[0].x)*(m[1].x - m[0].x) + (m[1].y - m[0].y)*(m[1].y - m[0].y));
     float markerSide = sqrt((m.x[1] - m.x[0])*(m.x[1] - m.x[0]) + (m.y[1] - m.y[0])*(m.y[1] - m.y[0]));
 
     if (cos(theta) >= 0) {
