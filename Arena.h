@@ -11,6 +11,7 @@
 #include "Obstacle.h"
 #include "Marker.h"
 
+
 class Arena {
 public:
     explicit Arena();
@@ -20,13 +21,12 @@ public:
     void drawRectangle(cv::Mat& image, float x, float y, float width, float height);
     bool getPosition(int markerId, Marker& marker);
     Position getTargetLocation();
-    //void processMarkers(cv::Mat& image, std::vector<aruco::Marker>& markers);
+    // void processMarkers(cv::Mat& image, std::vector<aruco::Marker>& markers);
     void processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers);
     void randomize();
     void setSize(float width, float height);
-    //Marker translate(aruco::Marker m);
+    // Marker translate(aruco::Marker m);
     Marker translate(ArucoMarker m);
-
 
     void onCustomXChanged(double x);
     void onCustomYChanged(double y);
