@@ -104,7 +104,6 @@ void Arena::drawRectangle(cv::Mat& image, float x, float y, float width, float h
 bool Arena::getPosition(int markerId, Marker& marker) {
     if(mMarkers.contains(markerId)){
         marker = mMarkers.value(markerId, Marker(markerId));
-        mMarkersMutex.unlock();
         return true;
     }
     return false;
