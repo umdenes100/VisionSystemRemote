@@ -6,15 +6,15 @@ FireMission::FireMission() : Mission()
 {
 }
 
-QString FireMission::baseObjective(QString string){
-    if (base > 0){
-        base--;
-        return "The type of the material is: " + string + "\n";
-    }else {
-        return "ERROR: too many base objective calls\n";
+QString FireMission::objective(QString string) {
+    // first call is location
+    // later calls are ignored
+    switch(callNumber++) {
+    case 0:
+        return "The number of flames is: " + string + "\n";
+        break;
+    default:
+        return "ERROR: too many mission() calls\n";
+        break;
     }
-}
-
-QString FireMission::bonusObjective(QString string){
-    return "ERROR: too many bonus objective calls\n";
 }

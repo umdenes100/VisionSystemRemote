@@ -7,8 +7,7 @@ class DebrisMission : public Mission
 public:
     DebrisMission();
 
-    QString baseObjective(QString string);
-    QString bonusObjective(QString string);
+    QString objective(QString string);
 };
 
 #endif // DEBRISMISSION_H

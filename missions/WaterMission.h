@@ -7,8 +7,7 @@ class WaterMission : public Mission
 public:
     WaterMission();
 
-    QString baseObjective(QString string);
-    QString bonusObjective(QString string);
+    QString objective(QString string);
 };
 
 #endif // WATERMISSION_H

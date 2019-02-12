@@ -8,8 +8,7 @@ class ChemicalMission : public Mission
 public:
     ChemicalMission();
 
-    QString baseObjective(QString string);
-    QString bonusObjective(QString string);
+    QString objective(QString string);
 };
 
 #endif // CHEMICALMISSION_H

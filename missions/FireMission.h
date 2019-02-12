@@ -7,8 +7,7 @@ class FireMission : public Mission
 public:
     FireMission();
 
-    QString baseObjective(QString string);
-    QString bonusObjective(QString string);
+    QString objective(QString string);
 };
 
 #endif // FIREMISSION_H

@@ -6,34 +6,33 @@ WaterMission::WaterMission() : Mission()
 {
 }
 
-QString WaterMission::baseObjective(QString string){
-    int state = string.toInt();
-    QString waterType;
+QString WaterMission::objective(QString string) {
+    // first call is location
+    // later calls are ignored
+    switch(callNumber++) {
+    case 0:
+        {
+            int state = string.toInt();
+            QString waterType;
 
-    if(state == 0){
-        waterType = "Fresh";
-    }else if(state == 1){
-        waterType = "Polluted";
-    }else if(state == 2){
-        waterType = "Salt";
-    }else{
-        waterType = "ERROR";
-    }
+            if(state == 0){
+                waterType = "Fresh";
+            }else if(state == 1){
+                waterType = "Polluted";
+            }else if(state == 2){
+                waterType = "Salt";
+            }else{
+                waterType = "ERROR";
+            }
 
-    if (base > 0){
-        base--;
-        return "The state of the water is: " + waterType + "\n";
-    }else {
-        return "ERROR: too many base objective calls\n";
-    }
-}
-
-QString WaterMission::bonusObjective(QString string){
-    if (bonus > 0){
-        bonus--;
+            return "The state of the water is: " + waterType + "\n";
+        }
+        break;
+    case 1:
         return "The depth of the pool is: " + string + " mm\n";
-    }
-    else {
-        return "ERROR: too many bonus objective calls\n";
+        break;
+    default:
+        return "ERROR: too many mission() calls\n";
+        break;
     }
 }
