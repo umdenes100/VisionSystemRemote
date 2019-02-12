@@ -6,9 +6,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/imgproc.hpp>
-//#include <aruco/aruco.h>
 #include <opencv2/aruco.hpp>
-#include "ArucoMarker.h"
 #include <QObject>
 #include <QTimer>
 #include <QImage>
@@ -20,8 +18,8 @@ class Camera : public QObject {
 
 public:
     explicit Camera(Arena& arena);
-    bool isBestekerCamera;
     void resetCamera();
+    bool isBestekerCamera;
 
 public slots:
     void applySettings(uint cameraDevice, QSize resolution, uint frameRate, float markerSize);
