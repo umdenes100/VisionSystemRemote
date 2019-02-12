@@ -38,23 +38,21 @@ cv::Point Arena::cameraCoordinate(float x, float y) {
 
 // Draws the starting position, obstacles, and destination
 void Arena::draw(cv::Mat& image) {
-    mObstaclesMutex.lock();
+
     if (mDrawObstacles) {
         for (int i = 0; i < 3; i++) {
             drawRectangle(image, mObstacles[i].x, mObstacles[i].y, mObstacles[i].width, mObstacles[i].height);
         }
     }
-    mObstaclesMutex.unlock();
-    mDestinationMutex.lock();
+
     if (mDrawDestination) {
         drawCircle(image, mTargetLocation.x, mTargetLocation.y, TARGET_DIAMETER / 2);
     }
-    mDestinationMutex.unlock();
-    mCustomMutex.lock();
+
     if(mDrawCustom) {
         drawCircle(image, mCustomCoordinate.x, mCustomCoordinate.y, 0.09);
     }
-    mCustomMutex.unlock();
+
     drawRectangle(image, mStartingLocation.x - 0.175, mStartingLocation.y + 0.175, 0.35, 0.35);
 
     Position pt1(mStartingLocation.x - 0.1 * cos(mStartingLocation.theta),
@@ -105,39 +103,31 @@ void Arena::drawRectangle(cv::Mat& image, float x, float y, float width, float h
 }
 
 bool Arena::getPosition(int markerId, Marker& marker) {
-    mMarkersMutex.lock();
-
     if(mMarkers.contains(markerId)){
         marker = mMarkers.value(markerId, Marker(markerId));
         mMarkersMutex.unlock();
         return true;
     }
-    mMarkersMutex.unlock();
     return false;
 }
 
 // Translates and stores a set of detected markers
 void Arena::processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers) {
-    mMarkersMutex.lock();
     mMarkers.clear();
 
     foreach (ArucoMarker marker, markers) {
         //marker.draw(image, cv::Scalar(0, 0, 255), 2);
 
         if (marker.id == 0) {
-            mArenaMutex.lock();
             //mOriginPx[0] = marker[0].x;
             mOriginPx[0] = marker.x[0];
             //mOriginPx[1] = marker[0].y;
             mOriginPx[1] = marker.y[0];
-            mArenaMutex.unlock();
         } else if (marker.id == 1) {
-            mArenaMutex.lock();
             //mXAxisPx[0] = marker[0].x;
             mXAxisPx[0] = marker.x[0];
             //mXAxisPx[1] = marker[0].y;
             mXAxisPx[1] = marker.y[0];
-            mArenaMutex.unlock();
         } else {
             Marker temp = translate(marker);
             mMarkers.insert(marker.id, temp);
@@ -157,15 +147,11 @@ void Arena::processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers) {
         }
     }
 
-    mMarkersMutex.unlock();
-
-    mArenaMutex.lock();
     // Calculate pixels per meter for the frame
     mPpm = sqrt((mXAxisPx[0] - mOriginPx[0])*(mXAxisPx[0] - mOriginPx[0]) +
         (mXAxisPx[1] - mOriginPx[1]) * (mXAxisPx[1] - mOriginPx[1])) / mWidthM;
     // Calculate the tilt of the arena in this frame
-    mTheta = -atan2(mXAxisPx[1] - mOriginPx[1], mXAxisPx[0] - mOriginPx[0]);
-    mArenaMutex.unlock();
+    mTheta = - atan2(mXAxisPx[1] - mOriginPx[1], mXAxisPx[0] - mOriginPx[0]);
 }
 
 // Randomizes mission variables
@@ -184,8 +170,6 @@ void Arena::randomize() {
     mStartingLocation.theta = (rand() % 4) * PI / 2 - PI;
 
     // Generate random positions and orientations for obstacles
-    mDestinationMutex.lock();
-    mObstaclesMutex.lock();
     int largeObstacleQuadrant = rand() % 3;
     for (int i = 0; i < 3; i++) {
         // Reassign sizes based on randomization
@@ -254,20 +238,15 @@ void Arena::randomize() {
             mTargetLocation.y - TARGET_DIAMETER / 2 - 0.5
         );
     }
-    mObstaclesMutex.unlock();
-    mDestinationMutex.unlock();
 }
 
 void Arena::setSize(float width, float height) {
-    mArenaMutex.lock();
     mWidthM = width;
     mHeightM = height;
-    mArenaMutex.unlock();
 }
 
 // Translates an Aruco Marker into a VS Marker and highlights in the image
 Marker Arena::translate(ArucoMarker m) {
-    mArenaMutex.lock();
     // Calculate theta of the marker by comparing the degree of the line created
     // by two corners with the degree of the arena
     //float theta = mTheta - atan2(m[1].y - m[0].y, m[1].x - m[0].x);
@@ -300,8 +279,6 @@ Marker Arena::translate(ArucoMarker m) {
     float x = A / mPpm;
     float y = B / mPpm;
 
-    mArenaMutex.unlock();
-
     Marker marker = Marker(m.id, x, y, theta);
 
 
@@ -309,38 +286,27 @@ Marker Arena::translate(ArucoMarker m) {
 }
 
 Position Arena::getTargetLocation(){
-    QMutexLocker lock(&mDestinationMutex);
     return mTargetLocation;
 }
 
 void Arena::onCustomXChanged(double x) {
-    mCustomMutex.lock();
     mCustomCoordinate.x = static_cast<float>(x);
-    mCustomMutex.unlock();
 }
 
 void Arena::onCustomYChanged(double y) {
-    mCustomMutex.lock();
     mCustomCoordinate.y = static_cast<float>(y);
-    mCustomMutex.unlock();
 }
 
 void Arena::onDrawCustomChanged(bool draw) {
-    mCustomMutex.lock();
     mDrawCustom = draw;
-    mCustomMutex.unlock();
 }
 
 void Arena::onDrawDestinationChanged(bool draw) {
-    mDestinationMutex.lock();
     mDrawDestination = draw;
-    mDestinationMutex.unlock();
 }
 
 void Arena::onDrawObstaclesChanged(bool draw) {
-    mObstaclesMutex.lock();
     mDrawObstacles = draw;
-    mObstaclesMutex.unlock();
 }
 
 inline float Arena::max(float a, float b) {
