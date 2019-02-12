@@ -26,7 +26,7 @@ Controller::Controller(QObject *parent) : QObject(parent),
     connect(&mServerThread, SIGNAL(started()), mServer, SLOT(start()));
 }
 
-Controller::~Controller(){
+Controller::~Controller() {
     mCameraThread.quit();
     mSerialPortListThread.quit();
     mServerThread.quit();

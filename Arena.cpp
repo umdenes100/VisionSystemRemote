@@ -24,7 +24,6 @@ Arena::Arena()
 
 // Converts arena coordinates into pixel coordinates
 cv::Point Arena::cameraCoordinate(float x, float y) {
-    QMutexLocker lock(&mArenaMutex);
     // Convert coordinates to pixels
     float A = x * mPpm;
     float B = y * mPpm;
