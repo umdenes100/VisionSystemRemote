@@ -57,7 +57,7 @@ HEADERS += \
     missions/FireMission.h \
     missions/Mission.h \
     missions/WaterMission.h \
-    arucomarker.h
+    ArucoMarker.h
 
 FORMS += \
         mainwindow.ui

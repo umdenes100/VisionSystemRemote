@@ -2,12 +2,10 @@
 #define ARENA_H
 
 #include <QMap>
-#include <QMutex>
 #include <opencv2/core.hpp>
 #include <vector>
-//#include <aruco/aruco.h>
 #include <opencv2/aruco.hpp>
-#include "arucomarker.h"
+#include "ArucoMarker.h"
 #include "Marker.h"
 #include "Position.h"
 #include "Obstacle.h"
