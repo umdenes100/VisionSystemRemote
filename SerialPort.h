@@ -16,8 +16,8 @@ enum TeamType{
 };
 
 enum CommandType{
-    BASE,
-    BONUS,
+    MISSION,
+    NOOP,
     END,
     NAVIGATED,
     START

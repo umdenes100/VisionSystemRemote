@@ -7,6 +7,10 @@
 
 const float PI = 3.141592653589;
 const float TARGET_DIAMETER = 0.18;
+const float THRESHOLD = 0.1;
+const float OBSTACLE_WIDTH = 0.2;
+const float OBSTACLE_HEIGHT = 0.5;
+const float OSV_WIDTH = 0.35;
 
 Arena::Arena()
 {
@@ -170,90 +174,50 @@ void Arena::processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers) {
 
 // Randomizes mission variables
 void Arena::randomize() {
-    static const float quadrantBounds[4][4] = {
-        // Min x, Max x, Min y, Max y
-        {1.4, 2.25, 1.0, 1.8},
-        {1.4, 2.25, 0.2, 1.0},
-        {2.25, 3.8, 0.2, 1.0},
-        {2.25, 3.8, 1.0, 1.8}
-    };
-    
+
     // Generate a random starting position
     mStartingLocation.x = 0.35;
     mStartingLocation.y = 0.4 + (rand() % 5) * 0.3;
     mStartingLocation.theta = (rand() % 4) * PI / 2 - PI;
 
+    static const int presets[6][3] = {
+        {0, 1, 2},
+        {2, 1, 0},
+        {0, 2, 1},
+        {2, 0, 1},
+        {1, 0, 2},
+        {1, 2, 0}
+    };
+
+    const int randomization = rand() % 6;
+
+    // now we hav selected the randomization we now need to randomize the obstacles accordingly
     // Generate random positions and orientations for obstacles
     mDestinationMutex.lock();
     mObstaclesMutex.lock();
-    int largeObstacleQuadrant = rand() % 3;
-    for (int i = 0; i < 3; i++) {
-        // Reassign sizes based on randomization
-        float d1 = i == largeObstacleQuadrant ? 0.41 : 0.32;
-        float d2 = i == largeObstacleQuadrant ? 0.23 : 0.13;
 
-        // Random orientation
-        if (rand() % 2) {
-            mObstacles[i].width = d1;
-            mObstacles[i].height = d2;
-        } else {
-            mObstacles[i].width = d2;
-            mObstacles[i].height = d1;
-        }
+    // Akhil's Algorithm
+
+    for(int i = 0; i < 3; i++) {
+        // y location is either 1.8, 1.25, or 0.7: distances of 0.65
+        float baseY = presets[randomization][i] * 0.65 + OBSTACLE_HEIGHT + 0.1;
+        mObstacles[i].y = baseY;
+
+        mObstacles[i].x = i * 0.55 + 1.5;
+        mObstacles[i].height = OBSTACLE_HEIGHT;
+        mObstacles[i].width = OBSTACLE_WIDTH;
     }
 
-    for (int i = 0; i < 2; i++) {
-        // Randomize locations
-        mObstacles[i].x =
-            (rand() % 100) *
-            (quadrantBounds[i][1] - quadrantBounds[i][0] - mObstacles[i].width) / 100.0 +
-            quadrantBounds[i][0];
-        mObstacles[i].y =
-            (rand() % 100) *
-            (quadrantBounds[i][3] - quadrantBounds[i][2] - mObstacles[i].height) / 100.0 +
-            quadrantBounds[i][2] + mObstacles[i].height;
-    }
+    // the target randomization will be in a box
+    float xMin = 2.8 + 0.4 + TARGET_DIAMETER / 2;
+    float xMax = 4 - OSV_WIDTH - 0.1 - TARGET_DIAMETER / 2;
+    float yMin = 0.4 + TARGET_DIAMETER / 2;
+    float yMax = 2 - 0.4 - TARGET_DIAMETER / 2;
 
-    // Randomize target quadrant (and place obstacle opposite)
-    if (rand() % 2) {
-        mTargetLocation.x =
-            (rand() % 100) *
-            (quadrantBounds[2][1] - 0.3 - max(quadrantBounds[2][0], mObstacles[1].x + mObstacles[1].width / 2 + 0.5) - TARGET_DIAMETER) / 100.0 +
-            max(quadrantBounds[2][0], mObstacles[1].x + mObstacles[1].width / 2 + 0.5) + TARGET_DIAMETER;
-        mTargetLocation.y =
-            (rand() % 100) *
-            (quadrantBounds[2][3] - quadrantBounds[2][2] - TARGET_DIAMETER) / 100.0 +
-            quadrantBounds[2][2] + TARGET_DIAMETER;
-        mObstacles[2].x =
-            (rand() % 100) *
-            (quadrantBounds[3][1] - quadrantBounds[3][0] - mObstacles[2].width) / 100.0 +
-            quadrantBounds[3][0];
-        mObstacles[2].y = max(
-            (rand() % 100) *
-            (quadrantBounds[3][3] - quadrantBounds[3][2] - mObstacles[2].height) / 100.0 +
-            quadrantBounds[3][2] + mObstacles[2].height,
-            mTargetLocation.y + TARGET_DIAMETER / 2 + 0.5
-        );
-    } else {
-        mTargetLocation.x =
-            (rand() % 100) *
-            (quadrantBounds[3][1] - 0.3 - max(quadrantBounds[3][0], mObstacles[0].x + mObstacles[0].width / 2 + 0.5) - TARGET_DIAMETER) / 100.0 +
-            max(quadrantBounds[3][0], mObstacles[0].x + mObstacles[0].width / 2 + 0.5) + TARGET_DIAMETER;
-        mTargetLocation.y =
-            (rand() % 100) *
-            (quadrantBounds[3][3] - quadrantBounds[3][2] - TARGET_DIAMETER) / 100.0 +
-            quadrantBounds[3][2] + TARGET_DIAMETER;
-        mObstacles[2].x =
-            (rand() % 100) *
-            (quadrantBounds[2][1] - quadrantBounds[2][0] - mObstacles[2].width) / 100.0 +
-            quadrantBounds[2][0];
-        mObstacles[2].y = min(
-            (rand() % 100) *
-            (quadrantBounds[2][3] - quadrantBounds[2][2] - mObstacles[2].height) / 100.0 +
-            quadrantBounds[2][2] + mObstacles[2].height,
-            mTargetLocation.y - TARGET_DIAMETER / 2 - 0.5
-        );
-    }
+    // we now have ranges
+    mTargetLocation.x = (rand() % 100) / 100.0 * (xMax - xMin) + xMin;
+    mTargetLocation.y = (rand() % 100) / 100.0 * (yMax - yMin) + yMin;
+
     mObstaclesMutex.unlock();
     mDestinationMutex.unlock();
 }

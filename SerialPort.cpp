@@ -100,29 +100,21 @@ void SerialPort::processCommand(QString buffer){
             if (markerPresent) {
                 QByteArray response = QByteArray("\x05").append(marker.serialize());
                 write(response);
+            } else {
+                write(QByteArray("\x09"));
             }
         }
         break;
     case 6:
-        if ((int)buffer[1].unicode()) {
-            // if we have bonus
-            QString param = buffer.mid(2);
-            QString result = mission->bonusObjective(param);
+        {
+            QString param = buffer.mid(1);
+            QString result = mission->objective(param);
             QString message;
             message += "\n*** MISSION MESSAGE ***\n";
             message += result;
             message += "**************************\n";
             write(QByteArray().append("\x07"));
-            emit newCommand(portName(), BONUS, message);
-        } else {
-            QString param = buffer.mid(2);
-            QString result = mission->baseObjective(param);
-            QString message;
-            message += "\n*** MISSION MESSAGE ***\n";
-            message += result;
-            message += "**************************\n";
-            write(QByteArray().append("\x07"));
-            emit newCommand(portName(), BASE, message);
+            emit newCommand(portName(), MISSION, message);
         }
 
         break;
