@@ -124,7 +124,7 @@ void Server::onMessageReceived(QString message) {
 
 void Server::onNewCommand(QString portName, QString type, QString message) {
     QString jsonMessage = jsonify("COMMAND", jsonify(type, message));
-    qDebug() << jsonMessage;
+    // qDebug() << jsonMessage;
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonMessage);
     }
