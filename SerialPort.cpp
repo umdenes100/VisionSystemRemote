@@ -10,9 +10,9 @@
 SerialPort::SerialPort(QSerialPortInfo& info, Arena& arena) :
     QSerialPort(info),
     mArena(arena),
-    mTeamName(info.portName()),
-    mType(BLACK_BOX)
+    mTeamName(info.portName())
 {
+    mType = "BLACK_BOX";
     connect(this, SIGNAL(readyRead()), SLOT(onReadyRead()));
     setBaudRate(QSerialPort::Baud9600);
     setDataBits(QSerialPort::Data8);
@@ -23,14 +23,20 @@ SerialPort::SerialPort(QSerialPortInfo& info, Arena& arena) :
     setRequestToSend(false);
 
     mission = new BlackBoxMission();
+    mTimeCheck = new QTimer();
+    connect(mTimeCheck, SIGNAL(timeout()), this, SLOT(checkTime()));
 }
 
 QString& SerialPort::getTeamName(){
     return mTeamName;
 }
 
-TeamType SerialPort::getTeamType(){
+QString SerialPort::getTeamType(){
     return mType;
+}
+
+void SerialPort::checkTime() {
+    emit newCommand(portName(), "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
 }
 
 void SerialPort::onReadyRead() {
@@ -53,11 +59,10 @@ void SerialPort::processCommand(QString buffer){
         }
         break;
     case 2:
-        qDebug() << "start mission";
         if (buffer.length() > 2) {
 
             QByteArray response = QByteArray();
-            if (mType != BLACK_BOX) {
+            if (mType != "BLACK_BOX") {
                 Position destination = mArena.getTargetLocation();
                 response.append(destination.serialize());
             } else {
@@ -68,27 +73,43 @@ void SerialPort::processCommand(QString buffer){
 
             running = true;
             mTeamName = buffer.mid(2);
-            mType = static_cast<TeamType>((int)buffer[1].unicode());
+            delete mission;
 
-            if (mType == BLACK_BOX) {
+            switch((int)buffer[1].unicode()) {
+            case 0:
+                mType = "BLACK_BOX";
                 mission = new BlackBoxMission();
-            } else if (mType == CHEMICAL) {
+                break;
+            case 1:
+                mType = "CHEMICAL";
                 mission = new ChemicalMission();
-            } else if (mType == DEBRIS) {
+                break;
+            case 2:
+                mType = "DEBRIS";
                 mission = new DebrisMission();
-            } else if (mType == FIRE) {
+                break;
+            case 3:
+                mType = "FIRE";
                 mission = new FireMission();
-            } else if (mType == WATER) {
+                break;
+            case 4:
+                mType = "WATER";
                 mission = new WaterMission();
+                break;
+            default:
+                mType = "BLACK_BOX";
+                mission = new BlackBoxMission();
+                break;
             }
 
+            mTimeCheck->start(500);
             emit newName();
 
             QString message;
             message += "\n*** MISSION MESSAGE ***\n";
             message += "Start of Mission\n";
             message += "**************************\n";
-            emit newCommand(portName(), START, message);
+            emit newCommand(portName(), "START", message);
         }
         break;
     case 4:
@@ -114,7 +135,7 @@ void SerialPort::processCommand(QString buffer){
             message += result;
             message += "**************************\n";
             write(QByteArray().append("\x07"));
-            emit newCommand(portName(), MISSION, message);
+            emit newCommand(portName(), "MISSION", message);
         }
 
         break;

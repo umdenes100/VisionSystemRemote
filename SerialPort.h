@@ -3,25 +3,11 @@
 
 #include <QSerialPort>
 #include <QSerialPortInfo>
+#include <QTimer>
+#include <QDateTime>
 
 #include "Arena.h"
 #include "missions/Mission.h"
-
-enum TeamType{
-    BLACK_BOX,
-    CHEMICAL,
-    DEBRIS,
-    FIRE,
-    WATER
-};
-
-enum CommandType{
-    MISSION,
-    NOOP,
-    END,
-    NAVIGATED,
-    START
-};
 
 class SerialPort : public QSerialPort
 {
@@ -29,24 +15,26 @@ class SerialPort : public QSerialPort
 public:
     explicit SerialPort(QSerialPortInfo& info, Arena& arena);
     QString& getTeamName();
-    TeamType getTeamType();
+    QString getTeamType();
 
 signals:
     void newMessage(QString portName, QString message);
     void newName();
-    void newCommand(QString portName, int type, QString message);
+    void newCommand(QString portName, QString type, QString message);
 
 private slots:
     void onReadyRead();
+    void checkTime();
 
 private:
     Arena& mArena;
     QString mTeamName;
     bool commandMode = false;
     bool running = false;
-    TeamType mType;
+    QString mType;
     Mission *mission;
     QString mBuffer;
+    QTimer *mTimeCheck;
 
     void processCommand(QString buffer);
 };

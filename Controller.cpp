@@ -20,7 +20,7 @@ Controller::Controller(QObject *parent) : QObject(parent),
     connect(mSerialPortList, SIGNAL(newMessage(QString,QString)), mServer, SLOT(onNewMessage(QString,QString)));
     connect(mSerialPortList, SIGNAL(newSerialPort(QString)), mServer, SLOT(addNameToMap(QString)));
     connect(mSerialPortList, SIGNAL(newName()), mServer, SLOT(onNewName()));
-    connect(mSerialPortList, SIGNAL(newCommand(QString,int,QString)), mServer, SLOT(onNewCommand(QString,int,QString)));
+    connect(mSerialPortList, SIGNAL(newCommand(QString,QString,QString)), mServer, SLOT(onNewCommand(QString,QString,QString)));
     connect(&mServerThread, SIGNAL(finished()), mServer, SLOT(deleteLater()));
     connect(&mServerThread, SIGNAL(finished()), &mServerThread, SLOT(deleteLater()));
     connect(&mServerThread, SIGNAL(started()), mServer, SLOT(start()));

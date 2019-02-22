@@ -12,6 +12,7 @@
 
 #include "SerialPortList.h"
 
+
 class Server : public QObject
 {
     Q_OBJECT
@@ -31,14 +32,14 @@ private slots:
     void onNewMessage(QString portName, QString message);
     void onNewName();
     void onMessageReceived(QString message);
-    void onNewCommand(QString portName, int type, QString message);
+    void onNewCommand(QString portName, QString type, QString message);
     void onImageConnectionEnded();
     void onMessageConnectionEnded();
 
 private:
     QString jsonify(QMap<QString, SerialPort*>);
     QString jsonify(QString);
-    QString jsonify(int type, QString message);
+    QString jsonify(QString type, QString message);
 
     QTcpServer mImageServer;
     QList<QTcpSocket*> mImageClients;

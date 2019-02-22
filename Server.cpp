@@ -80,7 +80,7 @@ void Server::onNewMessageConnection() {
 }
 
 void Server::onNewMessage(QString portName, QString message) {
-    QString jsonMessage = jsonify(message);
+    QString jsonMessage = jsonify("MESSAGE", jsonify(message));
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonMessage);
     }
@@ -100,21 +100,31 @@ void Server::onNewName() {
 }
 
 void Server::onMessageReceived(QString message) {
+    QJsonObject jsonObject = QJsonDocument::fromJson(message.toUtf8()).object();
+
+    QString type = jsonObject.value("TYPE").toString();
+    QString port = jsonObject.value("PORT").toString();
+
     qDebug() << message;
-    if(mMessageClients.contains(message)){
-        qDebug() << "found";
 
-        QWebSocket* socket = static_cast<QWebSocket *>(QObject::sender());
-        foreach (QString key, mMessageClients.keys()) {
-            mMessageClients[key].removeOne(socket);
-        }
-
-        mMessageClients[message].append(socket);
+    QWebSocket* socket = static_cast<QWebSocket *>(QObject::sender());
+    if (type == "OPEN")  {
+        mMessageClients[port].append(socket);
+    } else if (type == "SWITCH") {
+        QString newPort = jsonObject.value("NEW_PORT").toString();
+        mMessageClients[port].removeOne(socket);
+        mMessageClients[newPort].append(socket);
+    } else if (type == "SOFT_CLOSE") {
+        mMessageClients[port].removeOne(socket);
+    } else if (type == "HARD_CLOSE") {
+        mMessageClients[port].removeOne(socket);
+        delete socket;
     }
 }
 
-void Server::onNewCommand(QString portName, int type, QString message) {
-    QString jsonMessage = jsonify(type, message);
+void Server::onNewCommand(QString portName, QString type, QString message) {
+    QString jsonMessage = jsonify("COMMAND", jsonify(type, message));
+    qDebug() << jsonMessage;
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonMessage);
     }
@@ -135,7 +145,7 @@ void Server::onMessageConnectionEnded() {
 QString Server::jsonify(QMap<QString, SerialPort *> serialPorts) {
    QJsonObject jsonPorts, jsonMessage;
 
-   jsonMessage.insert("TYPE", "PORTLIST");
+   jsonMessage.insert("TYPE", "PORT_LIST");
 
    foreach(QString portName, serialPorts.keys()){
        QJsonObject json;
@@ -161,7 +171,7 @@ QString Server::jsonify(QString message) {
     return QString(doc.toJson(QJsonDocument::Compact));
 }
 
-QString Server::jsonify(int type, QString message){
+QString Server::jsonify(QString type, QString message){
     QJsonObject jsonMessage, jsonContents;
 
     jsonMessage.insert("TYPE", "MESSAGE");
