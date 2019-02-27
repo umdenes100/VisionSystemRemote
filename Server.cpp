@@ -80,7 +80,7 @@ void Server::onNewMessageConnection() {
 }
 
 void Server::onNewMessage(QString portName, QString message) {
-    QString jsonMessage = jsonify("MESSAGE", jsonify(message));
+    QString jsonMessage = jsonify("DEBUG", message);
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonMessage);
     }
@@ -123,7 +123,7 @@ void Server::onMessageReceived(QString message) {
 }
 
 void Server::onNewCommand(QString portName, QString type, QString message) {
-    QString jsonMessage = jsonify("COMMAND", jsonify(type, message));
+    QString jsonMessage = jsonify(type, message);
     // qDebug() << jsonMessage;
     foreach(QWebSocket* socket, mMessageClients[portName]){
         socket->sendTextMessage(jsonMessage);
@@ -142,6 +142,17 @@ void Server::onMessageConnectionEnded() {
     }
 }
 
+
+QString Server::jsonify(QString type, QString message){
+    QJsonObject jsonMessage;
+
+    jsonMessage.insert("TYPE", type);
+    jsonMessage.insert("CONTENT", message);
+
+    QJsonDocument doc(jsonMessage);
+    return QString(doc.toJson(QJsonDocument::Compact));
+}
+
 QString Server::jsonify(QMap<QString, SerialPort *> serialPorts) {
    QJsonObject jsonPorts, jsonMessage;
 
@@ -158,32 +169,3 @@ QString Server::jsonify(QMap<QString, SerialPort *> serialPorts) {
    QJsonDocument doc(jsonMessage);
    return QString(doc.toJson(QJsonDocument::Compact));
 }
-
-QString Server::jsonify(QString message) {
-    QJsonObject jsonMessage, jsonContents;
-
-    jsonMessage.insert("TYPE", "MESSAGE");
-    jsonContents.insert("M_TYPE", "DEBUG");
-    jsonContents.insert("CONTENT", message);
-    jsonMessage.insert("CONTENT", jsonContents);
-
-    QJsonDocument doc(jsonMessage);
-    return QString(doc.toJson(QJsonDocument::Compact));
-}
-
-QString Server::jsonify(QString type, QString message){
-    QJsonObject jsonMessage, jsonContents;
-
-    jsonMessage.insert("TYPE", "MESSAGE");
-    jsonContents.insert("M_TYPE", "MISSION");
-    jsonContents.insert("CONTENT_TYPE", type);
-    jsonContents.insert("CONTENT", message);
-    jsonMessage.insert("CONTENT", jsonContents);
-
-    QJsonDocument doc(jsonMessage);
-    return QString(doc.toJson(QJsonDocument::Compact));
-}
-
-
-
-

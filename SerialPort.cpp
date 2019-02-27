@@ -105,11 +105,7 @@ void SerialPort::processCommand(QString buffer){
             mTimeCheck->start(500);
             emit newName();
 
-            QString message;
-            message += "\n*** MISSION MESSAGE ***\n";
-            message += "Start of Mission\n";
-            message += "**************************\n";
-            emit newCommand(portName(), "START", message);
+            emit newCommand(portName(), "START", QString::number(QDateTime::currentSecsSinceEpoch()));
         }
         break;
     case 4:
@@ -130,12 +126,8 @@ void SerialPort::processCommand(QString buffer){
         {
             QString param = buffer.mid(1);
             QString result = mission->objective(param);
-            QString message;
-            message += "\n*** MISSION MESSAGE ***\n";
-            message += result;
-            message += "**************************\n";
             write(QByteArray().append("\x07"));
-            emit newCommand(portName(), "MISSION", message);
+            emit newCommand(portName(), "MISSION", result);
         }
 
         break;
