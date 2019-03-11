@@ -7,7 +7,7 @@
 #include "Arena.h"
 #include "Camera.h"
 #include "Server.h"
-#include "SerialPortList.h"
+#include "ConnectionList.h"
 
 class Controller : public QObject
 {
@@ -38,11 +38,11 @@ public slots:
 private:
     Arena mArena;
 
-    SerialPortList* mSerialPortList;
+    ConnectionList* mConnectionList;
     Server* mServer;
 
     QThread mCameraThread;
-    QThread mSerialPortListThread;
+    QThread mConnectionListThread;
     QThread mServerThread;
 };
 

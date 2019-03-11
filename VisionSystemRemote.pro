@@ -31,14 +31,14 @@ SOURCES += \
     Arena.cpp \
     Camera.cpp \
     Controller.cpp \
-    SerialPort.cpp \
-    SerialPortList.cpp \
     Server.cpp \
     missions/BlackBoxMission.cpp \
     missions/ChemicalMission.cpp \
     missions/DebrisMission.cpp \
     missions/FireMission.cpp \
-    missions/WaterMission.cpp
+    missions/WaterMission.cpp \
+    ConnectionList.cpp \
+    Connection.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -48,8 +48,6 @@ HEADERS += \
     Marker.h \
     Obstacle.h \
     Position.h \
-    SerialPort.h \
-    SerialPortList.h \
     Server.h \
     missions/BlackBoxMission.h \
     missions/ChemicalMission.h \
@@ -57,7 +55,9 @@ HEADERS += \
     missions/FireMission.h \
     missions/Mission.h \
     missions/WaterMission.h \
-    arucomarker.h
+    arucomarker.h \
+    ConnectionList.h \
+    Connection.h
 
 FORMS += \
         mainwindow.ui

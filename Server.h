@@ -10,14 +10,14 @@
 #include <QImage>
 #include <QMap>
 
-#include "SerialPortList.h"
+#include "ConnectionList.h"
 
 
 class Server : public QObject
 {
     Q_OBJECT
 public:
-    explicit Server(SerialPortList* list, QObject *parent = 0);
+    explicit Server(ConnectionList* list, QObject *parent = 0);
 
 public slots:
     void onNewFrame(QImage frame);
@@ -37,7 +37,7 @@ private slots:
     void onMessageConnectionEnded();
 
 private:
-    QString jsonify(QMap<QString, SerialPort*>);
+    QString jsonify(QMap<QString, Connection*>);
     QString jsonify(QString);
     QString jsonify(QString type, QString message);
 
@@ -47,7 +47,7 @@ private:
     QWebSocketServer mMessageServer;
     QMap<QString, QList<QWebSocket*>> mMessageClients;
 
-    SerialPortList* mSerialPortList;
+    ConnectionList* mConnectionList;
 
 };
 

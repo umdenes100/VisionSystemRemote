@@ -1,61 +1,52 @@
-﻿#include "SerialPort.h"
+#include "Connection.h"
 
 #include <QDebug>
+#include <QDateTime>
 #include "missions/BlackBoxMission.h"
 #include "missions/ChemicalMission.h"
 #include "missions/DebrisMission.h"
 #include "missions/FireMission.h"
 #include "missions/WaterMission.h"
 
-SerialPort::SerialPort(QSerialPortInfo& info, Arena& arena) :
-    QSerialPort(info),
+Connection::Connection(QString info, Arena& arena) :
     mArena(arena),
-    mTeamName(info.portName())
+    mTeamName(info)
 {
     mType = "BLACK_BOX";
-    connect(this, SIGNAL(readyRead()), SLOT(onReadyRead()));
-    setBaudRate(QSerialPort::Baud9600);
-    setDataBits(QSerialPort::Data8);
-    setParity(QSerialPort::NoParity);
-    setStopBits(QSerialPort::OneStop);
-    while(!isOpen())
-        open(QIODevice::ReadWrite);
-    setRequestToSend(false);
-
+    mAddress = info;
     mission = new BlackBoxMission();
     mTimeCheck = new QTimer();
     connect(mTimeCheck, SIGNAL(timeout()), this, SLOT(checkTime()));
 }
 
-QString& SerialPort::getTeamName(){
+Connection::~Connection()
+{
+
+}
+
+QString& Connection::getTeamName(){
     return mTeamName;
 }
 
-QString SerialPort::getTeamType(){
+QString Connection::getTeamType(){
     return mType;
 }
 
-void SerialPort::checkTime() {
-    emit newCommand(portName(), "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
+void Connection::checkTime() {
+    emit newCommand(mAddress, "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
 }
 
-void SerialPort::onReadyRead() {
-    while (bytesAvailable()) {
-        char c;
-        getChar(&c);
-        if (c == (char)255) {
-            processCommand(mBuffer);
-        } else {
-            mBuffer.append(c);
-        }
-    }
+void Connection::processDatagram(QNetworkDatagram data)
+{
+    processCommand(QString(data.data()));
 }
 
-void SerialPort::processCommand(QString buffer){
+void Connection::processCommand(QString buffer)
+{
     switch ((int)mBuffer[0].unicode()) {
     case 0:
         if (buffer.length() == 1) {
-            write(QByteArray().append("\x01"));
+            emit write(mAddress, QByteArray().append("\x01"));
         }
         break;
     case 2:
@@ -69,7 +60,7 @@ void SerialPort::processCommand(QString buffer){
                 response = Position().serialize();
             }
 
-            write(QByteArray().append("\x03").append(response));
+            emit write(mAddress, QByteArray().append("\x03").append(response));
 
             running = true;
             mTeamName = buffer.mid(2);
@@ -105,7 +96,7 @@ void SerialPort::processCommand(QString buffer){
             mTimeCheck->start(500);
             emit newName();
 
-            emit newCommand(portName(), "START", QString::number(QDateTime::currentSecsSinceEpoch()));
+            emit newCommand(mAddress, "START", QString::number(QDateTime::currentSecsSinceEpoch()));
         }
         break;
     case 4:
@@ -116,9 +107,9 @@ void SerialPort::processCommand(QString buffer){
             bool markerPresent = mArena.getPosition(markerId, marker);
             if (markerPresent) {
                 QByteArray response = QByteArray("\x05").append(marker.serialize());
-                write(response);
+                emit write(mAddress, response);
             } else {
-                write(QByteArray("\x09"));
+                emit write(mAddress, QByteArray("\x09"));
             }
         }
         break;
@@ -126,19 +117,17 @@ void SerialPort::processCommand(QString buffer){
         {
             QString param = buffer.mid(1);
             QString result = mission->objective(param);
-            write(QByteArray().append("\x07"));
-            emit newCommand(portName(), "MISSION", result);
+            emit write(mAddress, QByteArray().append("\x07"));
+            emit newCommand(mAddress, "MISSION", result);
         }
 
         break;
     case 8:
-        emit newMessage(portName(), buffer.mid(1));
+        emit newMessage(mAddress, buffer.mid(1));
         break;
     default:
         break;
     }
 
     mBuffer.clear();
-
 }
-
