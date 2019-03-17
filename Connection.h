@@ -13,7 +13,6 @@ class Connection : public QObject
 
 public:
     explicit Connection(QString info, Arena& arena);
-    void processDatagram(QNetworkDatagram data);
     ~Connection();
     QString& getTeamName();
     QString getTeamType();
@@ -29,16 +28,15 @@ private slots:
     void checkTime();
 
 private:
+    void process(QByteArray buffer);
+    
     Arena& mArena;
     QString mTeamName;
-    bool commandMode = false;
     bool running = false;
     QString mType;
     Mission *mission;
     QString mBuffer;
     QTimer *mTimeCheck;
-
-    void processCommand(QString buffer);
 };
 
 #endif // CONNECTION_H

@@ -9,7 +9,7 @@ ConnectionList::ConnectionList(Arena& arena, QObject *parent) :
     mArena(arena)
 {
     mUdpSocket = new QUdpSocket(this);
-    mUdpSocket->bind(QHostAddress::LocalHost, 7755);
+    mUdpSocket->bind(QHostAddress::Any, 7755);
 
     connect(mUdpSocket, SIGNAL(readyRead()), this, SLOT(readPendingDatagrams()));
 }
@@ -32,8 +32,7 @@ void ConnectionList::readPendingDatagrams()
 {
     while (mUdpSocket->hasPendingDatagrams()) {
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
-
-        QString sender = datagram.senderAddress().toString() + ":" + QString::number(datagram.senderPort());
+        QString sender = datagram.senderAddress().toString();
 
         mConnectionListMutex.lock();
         if(!mConnections.contains(sender)) {
@@ -48,7 +47,7 @@ void ConnectionList::readPendingDatagrams()
         }
         mConnectionListMutex.unlock();
 
-        mConnections[sender]->processDatagram(datagram);
+        mConnections[sender]->process(datagram.data());
     }
 }
 

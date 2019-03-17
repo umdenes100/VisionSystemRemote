@@ -36,14 +36,9 @@ void Connection::checkTime() {
     emit newCommand(mAddress, "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
 }
 
-void Connection::processDatagram(QNetworkDatagram data)
+void Connection::process(QByteArray buffer)
 {
-    processCommand(QString(data.data()));
-}
-
-void Connection::processCommand(QString buffer)
-{
-    switch ((int)mBuffer[0].unicode()) {
+    switch (buffer[0]) {
     case 0:
         if (buffer.length() == 1) {
             emit write(mAddress, QByteArray().append("\x01"));
@@ -66,7 +61,7 @@ void Connection::processCommand(QString buffer)
             mTeamName = buffer.mid(2);
             delete mission;
 
-            switch((int)buffer[1].unicode()) {
+            switch(buffer[1]) {
             case 0:
                 mType = "BLACK_BOX";
                 mission = new BlackBoxMission();
