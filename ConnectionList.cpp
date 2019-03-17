@@ -25,7 +25,7 @@ QMap<QString, Connection *>& ConnectionList::getMap(){
 
 void ConnectionList::onWrite(QString to, QByteArray data)
 {
-    mUdpSocket->writeDatagram(QNetworkDatagram(data, QHostAddress(to.mid(0, to.indexOf(":"))), to.mid(to.indexOf(":") + 1).toUShort()));
+    mUdpSocket->writeDatagram(QNetworkDatagram(data, QHostAddress(to), 7755);
 }
 
 void ConnectionList::readPendingDatagrams()
@@ -34,18 +34,15 @@ void ConnectionList::readPendingDatagrams()
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
         QString sender = datagram.senderAddress().toString();
 
-        mConnectionListMutex.lock();
         if(!mConnections.contains(sender)) {
             Connection *connection = new Connection(sender, mArena);
-            // connect(connection, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(onError(QSerialPort::SerialPortError)));
             connect(connection, SIGNAL(newMessage(QString, QString)), this, SLOT(onNewMessage(QString, QString)));
             connect(connection, SIGNAL(write(QString,QByteArray)), this, SLOT(onWrite(QString,QByteArray)));
             connect(connection, SIGNAL(newName()), this, SLOT(onNewName()));
             connect(connection, SIGNAL(newCommand(QString,QString,QString)), SLOT(onNewCommand(QString,QString,QString)));
-            mConnections.insert(connection->mAddress, connection);
-            emit newConnection(connection->mAddress);
+            mConnections.insert(sender, connection);
+            emit newConnection(sender);
         }
-        mConnectionListMutex.unlock();
 
         mConnections[sender]->process(datagram.data());
     }
