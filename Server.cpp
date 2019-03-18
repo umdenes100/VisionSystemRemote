@@ -18,7 +18,6 @@ Server::Server(ConnectionList* list, QObject *parent) :
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
     connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
     connect(&mTimeCheckTimer, SIGNAL(timeout()), SLOT(onTimeCheck()));
-    connect(this, SIGNAL(newCommand(QString,QString,QString)), SLOT(onNewCommand(QString,QString,QString)));
     mTimeCheckTimer.start(500);
 }
 
@@ -144,7 +143,7 @@ void Server::onMessageConnectionEnded() {
 void Server::onTimeCheck() {
     QList<QString> list = mConnectionList->getMap().keys();
     foreach(QString address, list) {
-        emit newCommand(address, "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
+        newCommand(address, "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
     }
 }
 

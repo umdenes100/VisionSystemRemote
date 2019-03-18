@@ -79,7 +79,7 @@ QByteArray ConnectionList::process(QString sender, QByteArray data) {
         }
         case 8: {
             // Debug message
-            emit newMessage(sender, "DEBUG");
+            emit newMessage(sender, QString(data.mid(1)));
             return QByteArray();
         }
     }

@@ -22,7 +22,6 @@ private:
     QString mTeamName;
     QString mMissionType;
     Mission *mMission;
-    bool mRunning;
 };
 
 #endif // CONNECTION_H

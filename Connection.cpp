@@ -28,7 +28,6 @@ QString Connection::getTeamType() {
 void Connection::start(QString teamName, int missionType) {
     mTeamName = teamName;
     mMissionType = missionType;
-    mRunning = true;
 
     delete mMission;
     switch (missionType) {
