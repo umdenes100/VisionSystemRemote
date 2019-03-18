@@ -73,10 +73,8 @@ void Server::onNewMessageConnection() {
 
     connect(socket, SIGNAL(textMessageReceived(QString)), SLOT(onMessageReceived(QString)));
     connect(socket, SIGNAL(disconnected()), SLOT(onMessageConnectionEnded()));
-    mConnectionList->mConnectionListMutex.lock();
     QMap<QString, Connection *> serialPorts = mConnectionList->getMap();
     QString json = jsonify(serialPorts);
-    mConnectionList->mConnectionListMutex.unlock();
     socket->sendTextMessage(json);
 
     mMessageClients[""].append(socket);
