@@ -1,7 +1,5 @@
 #include "ConnectionList.h"
-#include <QWebSocket>
-#include <QMutexLocker>
-#include <QDebug>
+
 #include <QNetworkDatagram>
 
 ConnectionList::ConnectionList(Arena& arena, QObject *parent) :
@@ -9,9 +7,8 @@ ConnectionList::ConnectionList(Arena& arena, QObject *parent) :
     mArena(arena)
 {
     mUdpSocket = new QUdpSocket(this);
-    mUdpSocket->bind(QHostAddress::Any, 7755);
-
     connect(mUdpSocket, SIGNAL(readyRead()), this, SLOT(readPendingDatagrams()));
+    mUdpSocket->bind(QHostAddress::Any, 7755);
 }
 
 ConnectionList::~ConnectionList()
@@ -19,44 +16,72 @@ ConnectionList::~ConnectionList()
     delete mUdpSocket;
 }
 
-QMap<QString, Connection *>& ConnectionList::getMap(){
+QMap<QString, Connection *>& ConnectionList::getMap() {
     return mConnections;
 }
 
-void ConnectionList::onWrite(QString to, QByteArray data)
-{
-    mUdpSocket->writeDatagram(QNetworkDatagram(data, QHostAddress(to), 7755);
-}
-
-void ConnectionList::readPendingDatagrams()
-{
+// Retrieves all pending datagrams and interprets their payloads
+void ConnectionList::readPendingDatagrams() {
     while (mUdpSocket->hasPendingDatagrams()) {
         QNetworkDatagram datagram = mUdpSocket->receiveDatagram();
         QString sender = datagram.senderAddress().toString();
 
         if(!mConnections.contains(sender)) {
-            Connection *connection = new Connection(sender, mArena);
-            connect(connection, SIGNAL(newMessage(QString, QString)), this, SLOT(onNewMessage(QString, QString)));
-            connect(connection, SIGNAL(write(QString,QByteArray)), this, SLOT(onWrite(QString,QByteArray)));
-            connect(connection, SIGNAL(newName()), this, SLOT(onNewName()));
-            connect(connection, SIGNAL(newCommand(QString,QString,QString)), SLOT(onNewCommand(QString,QString,QString)));
+            Connection *connection = new Connection(sender);
             mConnections.insert(sender, connection);
             emit newConnection(sender);
         }
 
-        mConnections[sender]->process(datagram.data());
+        QByteArray response = process(sender, datagram.data());
+        if (!response.isEmpty()) {
+            mUdpSocket->writeDatagram(response, datagram.senderAddress(), 7755);
+        }
     }
 }
 
-void ConnectionList::onNewMessage(QString connectionName, QString message){
-    emit newMessage(connectionName, message);
-}
+// Interprets a datagram payload
+QByteArray ConnectionList::process(QString sender, QByteArray data) {
+    switch (data[0]) {
+        case 0: {
+            // Ping
+            return QByteArray().append('\x01');
+        }
+        case 2: {
+            // Start
+            QString teamName = QString(data.mid(2));
+            int missionType = data[1];
+            mConnections[sender].start(teamName, missionType);
+            emit newName();
+            emit newCommand(sender, "START", QString::number(QDateTime::currentSecsSinceEpoch()));
 
-void ConnectionList::onNewName() {
-    emit newName();
-}
+            if (missionType != 0) {
+                Position destination = mArena.getTargetLocation();
+                return QByteArray().append('\x03').append(destination.serialize());
+            }
+            return QByteArray().append('\x03').append(Position().serialize());
+        }
+        case 4: {
+            // Location request
+            int markerId = data[1] | data[2] << 8;
+            Marker location;
+            bool markerPresent = mArena.getPosition(markerId, location);
+            if (markerPresent) {
+                return QByteArray().append('\x05').append(location.serialize());
+            }
+            return QByteArray().append('\x09');
+        }
+        case 6: {
+            // Mission message
+            QString value = QString(data.mid(1));
+            emit newCommand(sender, "MISSION", mConnections[sender].mission(value));
+            return QByteArray().append('\x07');
+        }
+        case 8: {
+            // Debug message
+            emit newMessage(sender, message);
+            return QByteArray();
+        }
+    }
 
-void ConnectionList::onNewCommand(QString connectionName, QString type, QString message) {
-    // qDebug() << portName << ": " << message;
-    emit newCommand(connectionName, type, message);
+    return QByteArray();
 }

@@ -9,6 +9,7 @@
 #include <QList>
 #include <QImage>
 #include <QMap>
+#include <QTimer>
 
 #include "ConnectionList.h"
 
@@ -35,6 +36,7 @@ private slots:
     void onNewCommand(QString portName, QString type, QString message);
     void onImageConnectionEnded();
     void onMessageConnectionEnded();
+    void onTimeCheck();
 
 private:
     QString jsonify(QMap<QString, Connection*>);
@@ -49,6 +51,7 @@ private:
 
     ConnectionList* mConnectionList;
 
+    QTimer mTimeCheckTimer;
 };
 
 #endif // SERVER_H

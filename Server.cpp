@@ -17,6 +17,8 @@ Server::Server(ConnectionList* list, QObject *parent) :
 {
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
     connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
+    connect(&mTimeCheckTimer, SIGNAL(timeout()), SLOT(onTimeCheck()));
+    mTimeCheckTimer.start(500);
 }
 
 void Server::start() {
@@ -87,10 +89,8 @@ void Server::onNewMessage(QString portName, QString message) {
 }
 
 void Server::onNewName() {
-    mConnectionList->mConnectionListMutex.lock();
     QMap<QString, Connection *> serialPorts = mConnectionList->getMap();
     QString json = jsonify(serialPorts);
-    mConnectionList->mConnectionListMutex.unlock();
 
     foreach (QList<QWebSocket*> portClients, mMessageClients.values()) {
         foreach (QWebSocket* socket, portClients) {
@@ -140,6 +140,10 @@ void Server::onMessageConnectionEnded() {
     foreach(QString key, mMessageClients.keys()){
         mMessageClients[key].removeOne(socket);
     }
+}
+
+void Server::onTimeCheck() {
+    newCommand(mAddress, "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
 }
 
 
