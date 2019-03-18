@@ -7,7 +7,7 @@
 #include "missions/WaterMission.h"
 
 Connection::Connection() :
-    mType("BLACK_BOX"),
+    mMissionType("BLACK_BOX"),
     mMission(new BlackBoxMission())
 {
 }
@@ -25,12 +25,12 @@ QString Connection::getTeamType() {
     return mMissionType;
 }
 
-void start(QString teamName, int missionType) {
+void Connection::start(QString teamName, int missionType) {
     mTeamName = teamName;
     mMissionType = missionType;
     mRunning = true;
 
-    delete mission;
+    delete mMission;
     switch (missionType) {
         case 0:
             mMissionType = "BLACK_BOX";
@@ -59,6 +59,6 @@ void start(QString teamName, int missionType) {
     }
 }
 
-QString mission(QString value) {
+QString Connection::mission(QString value) {
     return mMission->objective(value);
 }

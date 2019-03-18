@@ -1,6 +1,7 @@
 #include "ConnectionList.h"
 
 #include <QNetworkDatagram>
+#include <QDateTime>
 
 ConnectionList::ConnectionList(Arena& arena, QObject *parent) :
     QObject(parent),
@@ -50,7 +51,7 @@ QByteArray ConnectionList::process(QString sender, QByteArray data) {
             // Start
             QString teamName = QString(data.mid(2));
             int missionType = data[1];
-            mConnections[sender].start(teamName, missionType);
+            mConnections[sender]->start(teamName, missionType);
             emit newName();
             emit newCommand(sender, "START", QString::number(QDateTime::currentSecsSinceEpoch()));
 
@@ -73,12 +74,12 @@ QByteArray ConnectionList::process(QString sender, QByteArray data) {
         case 6: {
             // Mission message
             QString value = QString(data.mid(1));
-            emit newCommand(sender, "MISSION", mConnections[sender].mission(value));
+            emit newCommand(sender, "MISSION", mConnections[sender]->mission(value));
             return QByteArray().append('\x07');
         }
         case 8: {
             // Debug message
-            emit newMessage(sender, message);
+            emit newMessage(sender, "DEBUG");
             return QByteArray();
         }
     }

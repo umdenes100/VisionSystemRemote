@@ -13,6 +13,8 @@ public:
     ~Connection();
     QString& getTeamName();
     QString getTeamType();
+    void start(QString teamName, int missionType);
+    void mission(QString value);
 
 private:
     void process(QByteArray buffer);
@@ -20,6 +22,7 @@ private:
     QString mTeamName;
     QString mMissionType;
     Mission *mMission;
+    bool mRunning;
 };
 
 #endif // CONNECTION_H

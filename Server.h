@@ -24,6 +24,7 @@ public slots:
     void onNewFrame(QImage frame);
 
 signals:
+    void newCommand(QString portName, QString type, QString message);
 
 private slots:
     void start();
