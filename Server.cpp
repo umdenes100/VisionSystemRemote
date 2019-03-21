@@ -143,7 +143,7 @@ void Server::onMessageConnectionEnded() {
 void Server::onTimeCheck() {
     QList<QString> list = mConnectionList->getMap().keys();
     foreach(QString address, list) {
-        newCommand(address, "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
+        onNewCommand(address, "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
     }
 }
 

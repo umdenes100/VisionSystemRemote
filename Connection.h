@@ -14,7 +14,7 @@ public:
     QString& getTeamName();
     QString getTeamType();
     void start(QString teamName, int missionType);
-    void mission(QString value);
+    QString mission(QString value);
 
 private:
     void process(QByteArray buffer);

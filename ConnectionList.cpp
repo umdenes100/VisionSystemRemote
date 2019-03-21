@@ -28,7 +28,7 @@ void ConnectionList::readPendingDatagrams() {
         QString sender = datagram.senderAddress().toString();
 
         if(!mConnections.contains(sender)) {
-            Connection *connection = new Connection(sender);
+            Connection *connection = new Connection();
             mConnections.insert(sender, connection);
             emit newConnection(sender);
         }
@@ -64,7 +64,7 @@ QByteArray ConnectionList::process(QString sender, QByteArray data) {
         case 4: {
             // Location request
             int markerId = data[1] | data[2] << 8;
-            Marker location;
+            Marker location(markerId);
             bool markerPresent = mArena.getPosition(markerId, location);
             if (markerPresent) {
                 return QByteArray().append('\x05').append(location.serialize());
