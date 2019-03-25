@@ -1,5 +1,5 @@
 #include "Server.h"
-#include "SerialPort.h"
+#include "Connection.h"
 
 #include <QTcpSocket>
 #include <QByteArray>
@@ -9,14 +9,16 @@
 #include <QJsonDocument>
 #include <QMutex>
 
-Server::Server(SerialPortList* list, QObject *parent) :
+Server::Server(ConnectionList* list, QObject *parent) :
     QObject(parent),
     mImageServer(),
     mMessageServer(QStringLiteral("LTFs"), QWebSocketServer::NonSecureMode, this),
-    mSerialPortList(list)
+    mConnectionList(list)
 {
     connect(&mImageServer, SIGNAL(newConnection()), SLOT(onNewImageConnection()));
     connect(&mMessageServer, SIGNAL(newConnection()), SLOT(onNewMessageConnection()));
+    connect(&mTimeCheckTimer, SIGNAL(timeout()), SLOT(onTimeCheck()));
+    mTimeCheckTimer.start(500);
 }
 
 void Server::start() {
@@ -70,10 +72,8 @@ void Server::onNewMessageConnection() {
 
     connect(socket, SIGNAL(textMessageReceived(QString)), SLOT(onMessageReceived(QString)));
     connect(socket, SIGNAL(disconnected()), SLOT(onMessageConnectionEnded()));
-    mSerialPortList->mSerialPortsMutex.lock();
-    QMap<QString, SerialPort *> serialPorts = mSerialPortList->getMap();
+    QMap<QString, Connection *> serialPorts = mConnectionList->getMap();
     QString json = jsonify(serialPorts);
-    mSerialPortList->mSerialPortsMutex.unlock();
     socket->sendTextMessage(json);
 
     mMessageClients[""].append(socket);
@@ -87,10 +87,8 @@ void Server::onNewMessage(QString portName, QString message) {
 }
 
 void Server::onNewName() {
-    mSerialPortList->mSerialPortsMutex.lock();
-    QMap<QString, SerialPort *> serialPorts = mSerialPortList->getMap();
+    QMap<QString, Connection *> serialPorts = mConnectionList->getMap();
     QString json = jsonify(serialPorts);
-    mSerialPortList->mSerialPortsMutex.unlock();
 
     foreach (QList<QWebSocket*> portClients, mMessageClients.values()) {
         foreach (QWebSocket* socket, portClients) {
@@ -142,6 +140,13 @@ void Server::onMessageConnectionEnded() {
     }
 }
 
+void Server::onTimeCheck() {
+    QList<QString> list = mConnectionList->getMap().keys();
+    foreach(QString address, list) {
+        onNewCommand(address, "TIME", QString::number(QDateTime::currentSecsSinceEpoch()));
+    }
+}
+
 
 QString Server::jsonify(QString type, QString message){
     QJsonObject jsonMessage;
@@ -153,16 +158,16 @@ QString Server::jsonify(QString type, QString message){
     return QString(doc.toJson(QJsonDocument::Compact));
 }
 
-QString Server::jsonify(QMap<QString, SerialPort *> serialPorts) {
+QString Server::jsonify(QMap<QString, Connection *> connections) {
    QJsonObject jsonPorts, jsonMessage;
 
    jsonMessage.insert("TYPE", "PORT_LIST");
 
-   foreach(QString portName, serialPorts.keys()){
+   foreach(QString name, connections.keys()){
        QJsonObject json;
-       json.insert("NAME", serialPorts[portName]->getTeamName());
-       json.insert("MISSION", serialPorts[portName]->getTeamType());
-       jsonPorts.insert(portName, json);
+       json.insert("NAME", connections[name]->getTeamName());
+       json.insert("MISSION", connections[name]->getTeamType());
+       jsonPorts.insert(name, json);
    }
 
    jsonMessage.insert("CONTENT", jsonPorts);
