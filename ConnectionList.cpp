@@ -33,9 +33,10 @@ void ConnectionList::readPendingDatagrams() {
             emit newConnection(sender);
         }
 
-        QByteArray response = process(sender, datagram.data());
+        QByteArray response = process(sender, datagram.data().mid(1));
         if (!response.isEmpty()) {
-            mUdpSocket->writeDatagram(response, datagram.senderAddress(), 7755);
+            char seq = datagram.data()[0];
+            mUdpSocket->writeDatagram(QByteArray().append(seq).append(response), datagram.senderAddress(), 7755);
         }
     }
 }
