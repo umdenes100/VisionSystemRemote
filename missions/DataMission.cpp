@@ -1,12 +1,12 @@
-#include "PayloadMission.h"
+#include "DataMission.h"
 
 #include <QString>
 
-PayloadMission::PayloadMission() : Mission()
+DataMission::DataMission() : Mission()
 {
 }
 
-QString PayloadMission::bonusObjective(QString string){
+QString DataMission::bonusObjective(QString string){
     if (bonus > 0){
         bonus--;
         return "The Message is: " + string + "\n";
