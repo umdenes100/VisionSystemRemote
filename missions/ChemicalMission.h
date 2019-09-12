@@ -1,15 +1,14 @@
-#ifndef CHEMICALMISSION_H
-#define CHEMICALMISSION_H
+#ifndef PAYLOADMISSION_H
+#define PAYLOADMISSION_H
 
 #include "Mission.h"
 
-class ChemicalMission : public Mission
+class PayloadMission : public Mission
 {
 public:
-    ChemicalMission();
+    PayloadMission();
 
-    QString baseObjective(QString string);
     QString bonusObjective(QString string);
 };
 
-#endif // CHEMICALMISSION_H
+#endif // PAYLOADMISSION_H
