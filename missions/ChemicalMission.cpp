@@ -1,26 +1,16 @@
-#include "ChemicalMission.h"
+#include "PayloadMission.h"
 
 #include <QString>
 
-ChemicalMission::ChemicalMission() : Mission()
+PayloadMission::PayloadMission() : Mission()
 {
 }
 
-QString ChemicalMission::baseObjective(QString string){
-    if (base > 0){
-        base--;
-        return "The pH of the pool is: " + string + "\n";
-    }else {
-        return "ERROR: too many base objective calls\n";
-    }
-}
-
-QString ChemicalMission::bonusObjective(QString string){
+QString PayloadMission::bonusObjective(QString string){
     if (bonus > 0){
         bonus--;
-        return "The final pH of the pool is: " + string + "\n";
-    }
-    else {
-        return "ERROR: too many bonus objective calls\n";
+        return "The Message is: " + string + "\n";
+    }else {
+        return "ERROR: too many base objective calls\n";
     }
 }
