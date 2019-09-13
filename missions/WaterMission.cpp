@@ -15,16 +15,27 @@ QString WaterMission::objective(QString string) {
             int state = string.toInt();
             QString waterType;
 
-            if(state == 0){
-                waterType = "Fresh";
-            }else if(state == 1){
-                waterType = "Polluted";
-            }else if(state == 2){
-                waterType = "Salt";
-            }else{
-                waterType = "ERROR";
+            switch(state){
+                case 0:{
+                    waterType = "Fresh";
+                    break;
+                }
+                case 1:{
+                    waterType = "Polluted";
+                    break;
+                }
+                case 2:{
+                    waterType = "Salt";
+                    break;
+                }
+                case 3:{
+                    waterType = "Salt and Polluted";
+                    break;
+                }
+                default:
+                    waterType = "Error"
+                    break;
             }
-
             return "The state of the water is: " + waterType + "\n";
         }
         break;
