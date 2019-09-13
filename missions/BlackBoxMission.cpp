@@ -11,7 +11,7 @@ QString BlackBoxMission::objective(QString string) {
     // later calls are ignored
     switch(callNumber++) {
     case 0:
-        return "The Black Box is at: (" + string + ")\n";
+        return "The Color of the LED is: (" + string + ")\n";
         break;
     default:
         return "ERROR: too many mission() calls\n";
