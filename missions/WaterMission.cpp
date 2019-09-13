@@ -7,38 +7,35 @@ WaterMission::WaterMission() : Mission()
 }
 
 QString WaterMission::objective(QString string) {
-    // first call is location
-    // later calls are ignored
+    /*
+     * first call is water type
+     * second call is pool depth
+     * later calls are ignored
+     */
     switch(callNumber++) {
     case 0:
-        {
             int state = string.toInt();
             QString waterType;
 
             switch(state){
-                case 0:{
+                case 0:
                     waterType = "Fresh";
                     break;
-                }
-                case 1:{
+                case 1:
                     waterType = "Polluted";
                     break;
-                }
-                case 2:{
+                case 2:
                     waterType = "Salt";
                     break;
-                }
-                case 3:{
+                case 3:
                     waterType = "Salt and Polluted";
                     break;
-                }
                 default:
                     waterType = "Error"
                     break;
             }
             return "The state of the water is: " + waterType + "\n";
-        }
-        break;
+            break;
     case 1:
         return "The depth of the pool is: " + string + " mm\n";
         break;
