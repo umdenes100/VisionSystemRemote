@@ -8,9 +8,9 @@ WaterMission::WaterMission() : Mission()
 
 QString WaterMission::objective(QString string) {
     /*
-     * first call is water type
-     * second call is pool depth
-     * later calls are ignored
+     * The first call is water type.
+     * The second call is pool depth.
+     * Later calls are ignored.
      */
     switch(callNumber++) {
     case 0:
