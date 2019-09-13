@@ -8,22 +8,28 @@ DebrisMission::DebrisMission() : Mission()
 }
 
 QString DebrisMission::objective(QString string) {
-    // first call is location
-    // later calls are ignored
+    /* 
+     * The first mission() call is material type.
+     * The second call is weight.
+     * Later calls are ignored.
+     */
     switch(callNumber++) {
     case 0:
         {
             int state = string.toInt();
             QString materialType;
 
-            if(state == 0){
-                materialType = "Copper";
-            }else if(state == 1){
-                materialType = "Steel";
-            }else{
-                materialType = "ERROR";
+            switch(state) {
+                case 0:
+                    materialType = "Plastic";
+                    break;
+                case 1:
+                    materialType = "Aluminum";
+                    break;
+                default:
+                    materialType = "ERROR";
+                    break;
             }
-
             return "The type of the material is: " + materialType + "\n";
         }
         break;
