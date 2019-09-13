@@ -8,7 +8,7 @@ class DataMission : public Mission
 public:
     DataMission();
 
-    QString bonusObjective(QString string);
+    QString objective(QString string);
 };
 
 #endif // DATAMISSION_H
