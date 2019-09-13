@@ -3,7 +3,7 @@
 #include <QString>
 
 BlackBoxMission::BlackBoxMission() : Mission()
-{   
+{
 }
 
 QString BlackBoxMission::objective(QString string) {

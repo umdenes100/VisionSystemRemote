@@ -7,7 +7,7 @@ DataMission::DataMission() : Mission()
 }
 
 QString DataMission::objective(QString string) {
-    /* 
+    /*
      * The first call is the character.
      * Later calls are ignored.
      */

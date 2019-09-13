@@ -8,7 +8,7 @@ DebrisMission::DebrisMission() : Mission()
 }
 
 QString DebrisMission::objective(QString string) {
-    /* 
+    /*
      * The first call is material type.
      * The second call is weight.
      * Later calls are ignored.
