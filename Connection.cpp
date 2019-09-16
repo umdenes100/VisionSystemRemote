@@ -1,7 +1,7 @@
 #include "Connection.h"
 
 #include "missions/BlackBoxMission.h"
-#include "missions/ChemicalMission.h"
+#include "missions/DataMission.h"
 #include "missions/DebrisMission.h"
 #include "missions/FireMission.h"
 #include "missions/WaterMission.h"
@@ -36,8 +36,8 @@ void Connection::start(QString teamName, int missionType) {
             mMission = new BlackBoxMission();
             break;
         case 1:
-            mMissionType = "CHEMICAL";
-            mMission = new ChemicalMission();
+            mMissionType = "DATA_MISSION";
+            mMission = new DataMission();
             break;
         case 2:
             mMissionType = "DEBRIS";

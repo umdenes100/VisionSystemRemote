@@ -33,7 +33,7 @@ SOURCES += \
     Controller.cpp \
     Server.cpp \
     missions/BlackBoxMission.cpp \
-    missions/ChemicalMission.cpp \
+    missions/DataMission.cpp \
     missions/DebrisMission.cpp \
     missions/FireMission.cpp \
     missions/WaterMission.cpp \
@@ -50,7 +50,7 @@ HEADERS += \
     Position.h \
     Server.h \
     missions/BlackBoxMission.h \
-    missions/ChemicalMission.h \
+    missions/DataMission.h \
     missions/DebrisMission.h \
     missions/FireMission.h \
     missions/Mission.h \
