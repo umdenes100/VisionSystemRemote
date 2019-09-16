@@ -7,7 +7,8 @@ BlackBoxMission::BlackBoxMission() : Mission()
 }
 
 QString BlackBoxMission::objective(QString string) {
-    /* The first call is LED color.
+    /*
+     * The first call is LED color.
      * Later calls are ignored.
      */
     switch(callNumber++) {
