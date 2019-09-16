@@ -17,7 +17,7 @@ QString WaterMission::objective(QString string) {
             int state = string.toInt();
             QString waterType;
 
-            switch(state){
+            switch(state) {
                 case 0:
                     waterType = "Fresh and Unpolluted";
                     break;
