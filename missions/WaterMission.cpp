@@ -19,16 +19,16 @@ QString WaterMission::objective(QString string) {
 
             switch(state){
                 case 0:
-                    waterType = "Fresh";
+                    waterType = "Fresh and Unpolluted";
                     break;
                 case 1:
-                    waterType = "Polluted";
+                    waterType = "Fresh and Polluted";
                     break;
                 case 2:
-                    waterType = "Salt";
+                    waterType = "Salty and Unpolluted";
                     break;
                 case 3:
-                    waterType = "Salt and Polluted";
+                    waterType = "Salty and Polluted";
                     break;
                 default:
                     waterType = "Error"

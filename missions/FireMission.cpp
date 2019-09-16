@@ -7,7 +7,7 @@ FireMission::FireMission() : Mission()
 }
 
 QString FireMission::objective(QString string) {
-    /* 
+    /*
      * The first call is the number of flames.
      * Later calls are ignored.
      */
