@@ -36,7 +36,7 @@ void Connection::start(QString teamName, int missionType) {
             mMission = new BlackBoxMission();
             break;
         case 1:
-            mMissionType = "DATA_MISSION";
+            mMissionType = "DATA";
             mMission = new DataMission();
             break;
         case 2:
