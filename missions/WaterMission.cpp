@@ -31,7 +31,7 @@ QString WaterMission::objective(QString string) {
                     waterType = "Salty and Polluted";
                     break;
                 default:
-                    waterType = "Error"
+                    waterType = "Error";
                     break;
             }
             return "The state of the water is: " + waterType + "\n";
