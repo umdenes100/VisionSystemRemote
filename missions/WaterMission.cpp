@@ -14,27 +14,29 @@ QString WaterMission::objective(QString string) {
      */
     switch(callNumber++) {
     case 0:
-            int state = string.toInt();
-            QString waterType;
+            {
+                int state = string.toInt();
+                QString waterType;
 
-            switch(state) {
-                case 0:
-                    waterType = "Fresh and Unpolluted";
-                    break;
-                case 1:
-                    waterType = "Fresh and Polluted";
-                    break;
-                case 2:
-                    waterType = "Salty and Unpolluted";
-                    break;
-                case 3:
-                    waterType = "Salty and Polluted";
-                    break;
-                default:
-                    waterType = "Error";
-                    break;
+                switch(state) {
+                    case 0:
+                        waterType = "Fresh and Unpolluted";
+                        break;
+                    case 1:
+                        waterType = "Fresh and Polluted";
+                        break;
+                    case 2:
+                        waterType = "Salty and Unpolluted";
+                        break;
+                    case 3:
+                        waterType = "Salty and Polluted";
+                        break;
+                    default:
+                        waterType = "Error";
+                        break;
+                }
+                return "The state of the water is: " + waterType + "\n";
             }
-            return "The state of the water is: " + waterType + "\n";
             break;
     case 1:
         return "The depth of the pool is: " + string + " mm\n";
