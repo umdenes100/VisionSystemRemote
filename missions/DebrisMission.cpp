@@ -24,7 +24,7 @@ QString DebrisMission::objective(QString string) {
                     materialType = "Plastic";
                     break;
                 case 1:
-                    materialType = "Aluminum";
+                    materialType = "Copper";
                     break;
                 default:
                     materialType = "ERROR";
