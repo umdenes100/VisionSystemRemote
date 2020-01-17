@@ -44,7 +44,7 @@ cv::Point Arena::cameraCoordinate(float x, float y) {
 void Arena::draw(cv::Mat& image) {
     mObstaclesMutex.lock();
     if (mDrawObstacles) {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 1; i < 3; i++) {
             drawRectangle(image, mObstacles[i].x, mObstacles[i].y, mObstacles[i].width, mObstacles[i].height);
         }
     }
