@@ -56,11 +56,12 @@ QByteArray ConnectionList::process(QString sender, QByteArray data) {
             emit newName();
             emit newCommand(sender, "START", QString::number(QDateTime::currentSecsSinceEpoch()));
 
-            if (missionType != 0) {
-                Position destination = mArena.getTargetLocation();
-                return QByteArray().append('\x03').append(destination.serialize());
-            }
-            return QByteArray().append('\x03').append(Position().serialize());
+            //Hides destionation if Mission Type 0 (Black Box)
+            /*if(missionType==0){
+                return QByteArray().append('\x03').append(Position().serialize());
+            }*/
+            Position destination = mArena.getTargetLocation();
+            return QByteArray().append('\x03').append(destination.serialize());
         }
         case 4: {
             // Location request
