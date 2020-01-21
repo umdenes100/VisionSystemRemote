@@ -14,10 +14,10 @@ QString CrashSiteMission::objective(QString string) {
      */
     switch(callNumber++) {
     case 0:
-        return "The height of the payload is: " + string + "mm.\n";
+        return "The height of the payload is: " + string + " mm.\n";
         break;
     case 1:
-        return "The width of the payload is : " + string + "mm.\n";
+        return "The width of the payload is : " + string + " mm.\n";
         break;
     default:
         return "ERROR: too many mission() calls\n";
