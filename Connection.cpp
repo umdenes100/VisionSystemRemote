@@ -1,14 +1,14 @@
 #include "Connection.h"
 
-#include "missions/BlackBoxMission.h"
+#include "missions/CrashSiteMission.h"
 #include "missions/DataMission.h"
 #include "missions/DebrisMission.h"
 #include "missions/FireMission.h"
 #include "missions/WaterMission.h"
 
 Connection::Connection() :
-    mMissionType("BLACK_BOX"),
-    mMission(new BlackBoxMission())
+    mMissionType("CRASH_SITE"),
+    mMission(new CrashSiteMission())
 {
 }
 
@@ -32,8 +32,8 @@ void Connection::start(QString teamName, int missionType) {
     delete mMission;
     switch (missionType) {
         case 0:
-            mMissionType = "BLACK_BOX";
-            mMission = new BlackBoxMission();
+            mMissionType = "CRASH_SITE";
+            mMission = new CrashSiteMission();
             break;
         case 1:
             mMissionType = "DATA";
@@ -52,8 +52,8 @@ void Connection::start(QString teamName, int missionType) {
             mMission = new WaterMission();
             break;
         default:
-            mMissionType = "BLACK_BOX";
-            mMission = new BlackBoxMission();
+            mMissionType = "CRASH_SITE";
+            mMission = new CrashSiteMission();
             break;
     }
 }

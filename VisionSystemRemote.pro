@@ -32,7 +32,7 @@ SOURCES += \
     Camera.cpp \
     Controller.cpp \
     Server.cpp \
-    missions/BlackBoxMission.cpp \
+    missions/CrashSiteMission.cpp \
     missions/DataMission.cpp \
     missions/DebrisMission.cpp \
     missions/FireMission.cpp \
@@ -49,7 +49,7 @@ HEADERS += \
     Obstacle.h \
     Position.h \
     Server.h \
-    missions/BlackBoxMission.h \
+    missions/CrashSiteMission.h \
     missions/DataMission.h \
     missions/DebrisMission.h \
     missions/FireMission.h \
