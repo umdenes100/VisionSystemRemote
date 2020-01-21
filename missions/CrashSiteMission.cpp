@@ -8,7 +8,8 @@ CrashSiteMission::CrashSiteMission() : Mission()
 
 QString CrashSiteMission::objective(QString string) {
     /*
-     * The first call is LED color.
+     * The first call is height.
+     * The second call is width.
      * Later calls are ignored.
      */
     switch(callNumber++) {
