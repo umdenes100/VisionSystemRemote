@@ -44,10 +44,7 @@ cv::Point Arena::cameraCoordinate(float x, float y) {
 void Arena::draw(cv::Mat& image) {
     mObstaclesMutex.lock();
     if (mDrawObstacles) {
-        //Draw 3 obstacles
-        //for (int i = 0; i < 3; i++) {
-        //Draw 2 obstacles
-        for (int i = 1; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             drawRectangle(image, mObstacles[i].x, mObstacles[i].y, mObstacles[i].width, mObstacles[i].height);
         }
     }
@@ -181,15 +178,15 @@ void Arena::randomize() {
     // Generate a random starting position
     mStartingLocation.x = 0.35;
     mStartingLocation.y = 0.4 + (rand() % 5) * 0.3;
-    mStartingLocation.theta = (rand() % 4) * PI / 2 - PI;
+    mStartingLocation.theta = (rand() % 2) * PI - PI/2;
 
     static const int presets[6][3] = {
-        {0, 1, 2},
-        {2, 1, 0},
-        {0, 2, 1},
-        {2, 0, 1},
-        {1, 0, 2},
-        {1, 2, 0}
+        {0, 1},
+        {0, 2},
+        {1, 0},
+        {1, 2},
+        {2, 0},
+        {2, 1}
     };
 
     const int randomization = rand() % 6;
@@ -201,12 +198,12 @@ void Arena::randomize() {
 
     // Akhil's Algorithm
 
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < 2; i++) {
         // y location is either 1.8, 1.25, or 0.7: distances of 0.65
         float baseY = presets[randomization][i] * 0.65 + OBSTACLE_HEIGHT + 0.1;
         mObstacles[i].y = baseY;
 
-        mObstacles[i].x = i * 0.55 + 1.5;
+        mObstacles[i].x = i * 0.55 + 2.05;
         mObstacles[i].height = OBSTACLE_HEIGHT;
         mObstacles[i].width = OBSTACLE_WIDTH;
     }
