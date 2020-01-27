@@ -1,13 +1,13 @@
-#ifndef DEBRISMISSION_H
-#define DEBRISMISSION_H
+#ifndef MATERIALMISSION_H
+#define MATERIALMISSION_H
 #include "Mission.h"
 
-class DebrisMission : public Mission
+class MaterialMission : public Mission
 {
 public:
-    DebrisMission();
+    MaterialMission();
 
     QString objective(QString string);
 };
 
-#endif // DEBRISMISSION_H
+#endif // MATERIALMISSION_H

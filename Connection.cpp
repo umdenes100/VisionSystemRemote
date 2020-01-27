@@ -2,7 +2,7 @@
 
 #include "missions/CrashSiteMission.h"
 #include "missions/DataMission.h"
-#include "missions/DebrisMission.h"
+#include "missions/MaterialMission.h"
 #include "missions/FireMission.h"
 #include "missions/WaterMission.h"
 
@@ -40,8 +40,8 @@ void Connection::start(QString teamName, int missionType) {
             mMission = new DataMission();
             break;
         case 2:
-            mMissionType = "DEBRIS";
-            mMission = new DebrisMission();
+            mMissionType = "MATERIAL";
+            mMission = new MaterialMission();
             break;
         case 3:
             mMissionType = "FIRE";

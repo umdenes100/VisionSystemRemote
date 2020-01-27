@@ -1,13 +1,13 @@
-#include "DebrisMission.h"
+#include "MaterialMission.h"
 
 #include <QString>
 #include <QDebug>
 
-DebrisMission::DebrisMission() : Mission()
+MaterialMission::MaterialMission() : Mission()
 {
 }
 
-QString DebrisMission::objective(QString string) {
+QString MaterialMission::objective(QString string) {
     /*
      * The first call is material type.
      * The second call is weight.

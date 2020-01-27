@@ -34,7 +34,7 @@ SOURCES += \
     Server.cpp \
     missions/CrashSiteMission.cpp \
     missions/DataMission.cpp \
-    missions/DebrisMission.cpp \
+    missions/MaterialMission.cpp \
     missions/FireMission.cpp \
     missions/WaterMission.cpp \
     ConnectionList.cpp \
@@ -51,7 +51,7 @@ HEADERS += \
     Server.h \
     missions/CrashSiteMission.h \
     missions/DataMission.h \
-    missions/DebrisMission.h \
+    missions/MaterialMission.h \
     missions/FireMission.h \
     missions/Mission.h \
     missions/WaterMission.h \
