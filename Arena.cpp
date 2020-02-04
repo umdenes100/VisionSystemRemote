@@ -177,7 +177,7 @@ void Arena::randomize() {
 
     // Generate a random starting position
     mStartingLocation.x = 0.35;
-    mStartingLocation.y = 0.4 + (rand() % 5) * 0.3;
+    mStartingLocation.y = 0.4 + (rand() % 4) * 0.4;
     mStartingLocation.theta = (rand() % 2) * PI - PI/2;
 
     static const int presets[6][3] = {
@@ -203,7 +203,7 @@ void Arena::randomize() {
         float baseY = presets[randomization][i] * 0.65 + OBSTACLE_HEIGHT + 0.1;
         mObstacles[i].y = baseY;
 
-        mObstacles[i].x = i * 0.55 + 2.05;
+        mObstacles[i].x = i * 0.7 + 1.8;
         mObstacles[i].height = OBSTACLE_HEIGHT;
         mObstacles[i].width = OBSTACLE_WIDTH;
     }
