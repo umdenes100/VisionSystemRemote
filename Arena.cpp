@@ -52,6 +52,7 @@ void Arena::draw(cv::Mat& image) {
     mDestinationMutex.lock();
     if (mDrawDestination) {
         drawCircle(image, mTargetLocation.x, mTargetLocation.y, TARGET_DIAMETER / 2);
+        drawRectangle(image,mTargetLocation.x, mTargetLocation.y,0.21,0.21);
     }
     mDestinationMutex.unlock();
     mCustomMutex.lock();
