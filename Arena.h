@@ -19,7 +19,7 @@ public:
     cv::Point cameraCoordinate(float x, float y);
     void draw(cv::Mat& image);
     void drawCircle(cv::Mat& image, float x, float y, float radius);
-    void drawRectangle(cv::Mat& image, float x, float y, float width, float height);
+    void drawRectangle(cv::Mat& image, float x, float y, float width, float height, cv::Scalar color);
     bool getPosition(int markerId, Marker& marker);
     Position getTargetLocation();
     //void processMarkers(cv::Mat& image, std::vector<aruco::Marker>& markers);

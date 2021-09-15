@@ -1,5 +1,4 @@
 #include "Arena.h"
-
 #include <stdlib.h>
 #include <opencv2/imgproc.hpp>
 #include <QMutexLocker>
@@ -18,9 +17,9 @@ Arena::Arena()
     mOriginPx[1] = 500;
     mXAxisPx[0] = 600;
     mXAxisPx[1] = 600;
-    mObstacles[0] = {2.0, 2.0, 1.0, 1.0};
-    mObstacles[1] = {3.0, 1.5, 0.8, 0.2};
-    mObstacles[2] = {1.5, 3.2, 1.2, 1.4};
+    mObstacles[0] = {2.0, 2.0, 1.0, 1.0, cv::Scalar(255,255,255)};
+    mObstacles[1] = {3.0, 1.5, 0.8, 0.2, cv::Scalar(255,255,0)};
+    mObstacles[2] = {1.5, 3.2, 1.2, 1.4, cv::Scalar(0,0,0)};
 //    mPpm = 1;
     mWidthM = 4;
     mHeightM = 2;
@@ -45,7 +44,7 @@ void Arena::draw(cv::Mat& image) {
     mObstaclesMutex.lock();
     if (mDrawObstacles) {
         for (int i = 0; i < 2; i++) {
-            drawRectangle(image, mObstacles[i].x, mObstacles[i].y, mObstacles[i].width, mObstacles[i].height);
+            drawRectangle(image, mObstacles[i].x, mObstacles[i].y, mObstacles[i].width, mObstacles[i].height, mObstacles[i].color);
         }
     }
     mObstaclesMutex.unlock();
@@ -59,7 +58,7 @@ void Arena::draw(cv::Mat& image) {
         drawCircle(image, mCustomCoordinate.x, mCustomCoordinate.y, 0.09);
     }
     mCustomMutex.unlock();
-    drawRectangle(image, mStartingLocation.x - 0.175, mStartingLocation.y + 0.175, 0.35, 0.35);
+    drawRectangle(image, mStartingLocation.x - 0.175, mStartingLocation.y + 0.175, 0.35, 0.35, cv::Scalar(0,255,0));
 
     Position pt1(mStartingLocation.x - 0.1 * cos(mStartingLocation.theta),
                     mStartingLocation.y - 0.1 * sin(mStartingLocation.theta), 0);
@@ -91,7 +90,7 @@ void Arena::drawCircle(cv::Mat& image, float x, float y, float radius) {
 // Draws a rectangle in the arena
 // @params x, y are arena coordinate of upper left corner of rectangle
 // @params width, height are in meters
-void Arena::drawRectangle(cv::Mat& image, float x, float y, float width, float height) {
+void Arena::drawRectangle(cv::Mat& image, float x, float y, float width, float height, cv::Scalar color) {
     std::vector<cv::Point> points(4);
 
     points[0] = cameraCoordinate(x, y);
@@ -103,8 +102,8 @@ void Arena::drawRectangle(cv::Mat& image, float x, float y, float width, float h
     cv::polylines(image,
         contours,
         true,
-        cv::Scalar(0, 255, 0),
-        2
+        color,
+        4
     );
 }
 
@@ -174,22 +173,64 @@ void Arena::processMarkers(cv::Mat& image, std::vector<ArucoMarker>& markers) {
 
 // Randomizes mission variables
 void Arena::randomize() {
-
     // Generate a random starting position
-    mStartingLocation.x = 0.35;
-    mStartingLocation.y = 0.4 + (rand() % 4) * 0.4;
-    mStartingLocation.theta = (rand() % 2) * PI - PI/2;
-
-    static const int presets[6][3] = {
-        {0, 1},
+    int flipFlop = rand() % 2;
+    int randColor = rand() % 2;
+    mStartingLocation.x = 0.55;
+    mStartingLocation.y = 0.55 + (flipFlop) * 0.9;
+    //mStartingLocation.theta = (rand() % 2) * PI - PI/2;
+    //mStartingLocation.theta = (rand() % 180) * 2 * PI / 360;
+    //qDebug() << mStartingLocation.theta; 
+   
+    static int presets[4][3] = {
         {0, 2},
-        {1, 0},
         {1, 2},
         {2, 0},
         {2, 1}
     };
+ 
+    mTargetLocation.x = 0.55;
+    if(flipFlop) {
+        mTargetLocation.y = 0.55;   
+        mStartingLocation.theta = (rand() % 180) * 2 * PI / 360;
+        presets[0][0] = 0;
+        presets[0][1] = 2;
 
-    const int randomization = rand() % 6;
+        presets[1][0] = 1;
+        presets[1][1] = 2;
+        
+        presets[2][0] = 2;
+        presets[2][1] = 0;
+
+        presets[3][0] = 2;
+        presets[3][1] = 1;
+    } else {
+        mTargetLocation.y = 1.45; 
+        mStartingLocation.theta = ((rand() % 180)+180) * 2 * PI / 360;
+        presets[0][0] = 0;
+        presets[0][1] = 1;
+
+        presets[1][0] = 0;
+        presets[1][1] = 2;
+        
+        presets[2][0] = 1;
+        presets[2][1] = 0;
+
+        presets[3][0] = 2;
+        presets[3][1] = 0;
+
+    }
+
+//    static const int presets[6][3] = {
+//       {0, 1},
+//        {0, 2},
+//        {1, 0},
+//        {1, 2},
+//       {2, 0},
+//        {2, 1}
+//    };
+
+    const int randomization = rand() % 4;
 
     // now we hav selected the randomization we now need to randomize the obstacles accordingly
     // Generate random positions and orientations for obstacles
@@ -199,24 +240,31 @@ void Arena::randomize() {
     // Akhil's Algorithm
 
     for(int i = 0; i < 2; i++) {
-        // y location is either 1.8, 1.25, or 0.7: distances of 0.65
-        float baseY = presets[randomization][i] * 0.65 + OBSTACLE_HEIGHT + 0.1;
+        // y location is either 1.5, 1.0, or 0.5: distances of 0.65
+        float baseY = presets[randomization][i] * 0.5 + OBSTACLE_HEIGHT + 0.1;
         mObstacles[i].y = baseY;
 
-        mObstacles[i].x = i * 0.7 + 1.8;
+        mObstacles[i].x = i * 0.8 + 1.5;
         mObstacles[i].height = OBSTACLE_HEIGHT;
         mObstacles[i].width = OBSTACLE_WIDTH;
+        if (randColor) { // Rumbles
+            mObstacles[i].color = cv::Scalar(255,255,0);
+            randColor = 0;
+        } else { // Big white obstacle
+            mObstacles[i].color = cv::Scalar(255,255,255);
+            randColor = 1;
+        }        
     }
 
     // the target randomization will be in a box
-    float xMin = 2.8 + 0.4 + TARGET_DIAMETER / 2;
-    float xMax = 4 - OSV_WIDTH - 0.1 - TARGET_DIAMETER / 2;
-    float yMin = 0.4 + TARGET_DIAMETER / 2;
-    float yMax = 2 - 0.4 - TARGET_DIAMETER / 2;
+    // float xMin = 2.8 + 0.4 + TARGET_DIAMETER / 2;
+    // float xMax = 4 - OSV_WIDTH - 0.1 - TARGET_DIAMETER / 2;
+    // float yMin = 0.4 + TARGET_DIAMETER / 2;
+    // float yMax = 2 - 0.4 - TARGET_DIAMETER / 2;
 
     // we now have ranges
-    mTargetLocation.x = (rand() % 100) / 100.0 * (xMax - xMin) + xMin;
-    mTargetLocation.y = (rand() % 100) / 100.0 * (yMax - yMin) + yMin;
+    // mTargetLocation.x = (rand() % 100) / 100.0 * (xMax - xMin) + xMin;
+    // mTargetLocation.y = (rand() % 100) / 100.0 * (yMax - yMin) + yMin;
 
     mObstaclesMutex.unlock();
     mDestinationMutex.unlock();

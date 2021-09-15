@@ -66,7 +66,7 @@ void Camera::applySettings(uint cameraDevice, QSize resolution, uint frameRate, 
 void Camera::onFocusChanged(int focus) {
     QString command;
 
-    if (isBestekerCamera) return;
+    if (!isBestekerCamera) return;
 
     command = command + QString("v4l2-ctl -d /dev/video");
     command = command + QString::number(mCameraDevice);
@@ -105,7 +105,7 @@ void Camera::onBrightnessChanged(int brightness) {
 
 void Camera::resetCamera() {
     //'v4l2-ctl -d /dev/video2 --all' lists default values for the camera
-    int sharpness, brightness, contrast;
+    int sharpness, brightness, contrast, focus;
     QString command;
     if (isBestekerCamera) {
         sharpness = 6;
@@ -115,6 +115,7 @@ void Camera::resetCamera() {
         sharpness = 128;
         contrast = 128;
         brightness = 128;
+        focus = 5;
     }
 
     //set sharpness
@@ -139,11 +140,11 @@ void Camera::resetCamera() {
     system(command.toStdString().c_str());
 
     //set focus
-    if (!isBestekerCamera) {
+    if (false) {
         command = QString("v4l2-ctl -d /dev/video");
         command = command + QString::number(mCameraDevice);
         command = command + QString(" -c focus_absolute=");
-        command = command + QString::number(0);
+        command = command + QString::number(focus);
         system(command.toStdString().c_str());
     }
 
